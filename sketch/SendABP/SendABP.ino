@@ -6,45 +6,6 @@ const char *devAddr = "26011867";
 const char *nwkSKey = "93987E46A175977ACF32743E3C16CB87";
 const char *appSKey = "5025C951C0605BC50BE587F60260ABDB";
 
-//Original setup (initial position mainly)
-float original_lat = 5.724524;
-float original_long = 45.188529;
-float original_alt = 300;
-
-//For standard IFTTT integration or byte-to-byte analysis process
-byte nbSat;
-byte negative;
-union {
-    unsigned long lng;
-    byte longitude[4];
-} longitude;
-union {
-    unsigned long lat;
-    byte latitude[4];
-} latitude;
-union {
-    unsigned long alt;
-    byte altitude[4];
-} altitude;
-union {
-    unsigned long ut;
-    byte UTime[4];
-} UTime;
-
-//For Cayenne integration
-float ca_lat;
-float ca_long;
-float ca_alt;
-float ca_nbsat;
-
-//Color code
-// 0 : all green
-// 1 : slight movement, but nothing to worry
-// 2 : medium moovement, need a look
-// 3 : long and harsh movement, danger detected.
-// 4 : already alert a state 3, standby to reset
-uint8_t color;
-
 #define loraSerial Serial2
 #define debugSerial SerialUSB
 
@@ -123,32 +84,6 @@ void message(const byte *payload, size_t size, port_t port)
     //should reset state after downlink, assuming that a downlink
     // is aknowledging the alert state 3
     color =0;
-}
-
-void GPSSimulation()
-{
-    latitude.lat = random(2147483647);
-    longitude.lng = random(2147483647);
-    altitude.alt = random(2147483647);
-    UTime.ut = random(2147483647);
-    nbSat = random(10);
-}
-
-void Acceleration_Simulation()
-{
-    //All we do there si to say that a abnormal evenemtn is a lot more exceptional than no event for exemple
-
-    int simu = random(19);
-    if(simu <=14)
-        color =0;
-    else if(simu <=17)
-
-        color=1;
-    else if(simu <=18)
-        color =2;
-    else{
-        color =3;
-    }
 }
 
 void loop()
