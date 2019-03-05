@@ -1,0 +1,14 @@
+ version: "3"
+ services:
+    
+    broker:
+        network_mode: "host"
+        build: ./broker
+        privileged: true
+        volumes:
+           - /dev/bus/usb:/dev/bus/usb
+    server:
+        tty: true
+        stdin_open: true
+        network_mode: "host"
+        build: ./server
