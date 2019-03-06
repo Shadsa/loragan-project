@@ -87,7 +87,7 @@ typedef struct Sat
 typedef struct RoutingTable
 {
     
-    int NetworksLocalDif[MAXNETWORKAGREGATION];                         //List of dif stage by Network
+    int* NetworksLocalDif[MAXNETWORKAGREGATION];                         //List of dif stage by Network
     int GlobalDif;                                                      //Num of the GlobalDif (Autoritative server only)
     LPGANNetwork* Networks[MAXNETWORKAGREGATION];                             //List of Networks allowed and their ID
     Gateway* Gateways[MAXNETWORKAGREGATION][MAXROUTINGTABLEGATEWAYSIZE]; //List of allowed gateway by network
