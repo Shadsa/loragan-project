@@ -86,11 +86,12 @@ typedef struct Sat
 
 typedef struct RoutingTable
 {
-    LPGANNetwork Networks[MAXNETWORKAGREGATION];                             //List of Networks allowed and their ID
+    
     int NetworksLocalDif[MAXNETWORKAGREGATION];                         //List of dif stage by Network
     int GlobalDif;                                                      //Num of the GlobalDif (Autoritative server only)
-    Gateway Gateways[MAXNETWORKAGREGATION][MAXROUTINGTABLEGATEWAYSIZE]; //List of allowed gateway by network
-    Mote Motes[MAXNETWORKAGREGATION][MAXROUTINGTABLEMOTESIZE];          //List of subscribed mote by Network
+    LPGANNetwork* Networks[MAXNETWORKAGREGATION];                             //List of Networks allowed and their ID
+    Gateway* Gateways[MAXNETWORKAGREGATION][MAXROUTINGTABLEGATEWAYSIZE]; //List of allowed gateway by network
+    Mote* Motes[MAXNETWORKAGREGATION][MAXROUTINGTABLEMOTESIZE];          //List of subscribed mote by Network
 };
 
 #endif // OBJECTS_H

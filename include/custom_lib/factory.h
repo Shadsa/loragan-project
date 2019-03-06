@@ -11,8 +11,8 @@ void IntToPoint(byte* point[2], float value);
 int PointToInt(byte* point[2]);
 
 
-/* Gateway things */
-boolean DropGateway(Gateway gw);
+/* Routing table management*/
+boolean DropGateway(LPGANNetwork *network,Gateway gw, RoutingTable table);
 boolean IsGatewayDropped(Gateway gw);   //Compute if the gateway have to be dropped
 Gateway GetNextInsightGateway();
 int GetNetworkId(byte DEVADDR[4]);
