@@ -7,7 +7,7 @@
 #include "objects.h"
 
 /* GPSPoint Manipulation*/
-void IntToPoint(byte* point[2], int value);
+void IntToPoint(byte* point[2], float value);
 int PointToInt(byte* point[2]);
 
 
