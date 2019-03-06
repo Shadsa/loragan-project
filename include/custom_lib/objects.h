@@ -30,7 +30,7 @@ typedef struct GPSPoint
                        //store alt and long in the format 000.00
 };
 
-typedef struct Network
+typedef struct LPGANNetwork
 {
     int ID;
     byte NetworkPrefix;
@@ -38,7 +38,7 @@ typedef struct Network
 
 typedef struct Gateway
 {
-    Network *Network;
+    LPGANNetwork* Network;
     byte GatewayEUI[4];
     GPSPoint Position;
     float DropRatio = 0; // it's the Success/Transmit ratio. Below 0.5, the gateway will be droped.
@@ -46,7 +46,7 @@ typedef struct Gateway
 
 typedef struct Mote
 {
-    Network *Network;
+    LPGANNetwork *Network;
     byte DevADDR[4]; //the 7th first bits give the network prefix. May be redundant with Network* link.
     GPSPoint Position;
 };
@@ -67,7 +67,7 @@ typedef struct SatTimers
 {
     byte ListenTime = 1;     //Listening time in minute for the case of global packet ACK
     byte MessageTimeout = 1; //Time in day when a message will expire if not delivered
-};
+}; 
 
 //Store Sat configuration
 typedef struct Sat
@@ -86,7 +86,7 @@ typedef struct Sat
 
 typedef struct RoutingTable
 {
-    Network Networks[MAXNETWORKAGREGATION];                             //List of Networks allowed and their ID
+    LPGANNetwork Networks[MAXNETWORKAGREGATION];                             //List of Networks allowed and their ID
     int NetworksLocalDif[MAXNETWORKAGREGATION];                         //List of dif stage by Network
     int GlobalDif;                                                      //Num of the GlobalDif (Autoritative server only)
     Gateway Gateways[MAXNETWORKAGREGATION][MAXROUTINGTABLEGATEWAYSIZE]; //List of allowed gateway by network

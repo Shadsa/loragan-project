@@ -19,14 +19,14 @@ int GetNetworkId(byte DEVADDR[4]);
 boolean IsInSightOf(Gateway gw);
 
 /* Payload & message manipulation */
-boolean PreparePayload(Network n);
+boolean PreparePayload(LPGANNetwork n);
 boolean SendMessage(Message m);
 boolean ReceiveMessage(Message m);
 int ParseType(Message m);
 boolean ParseACK();
 boolean EncodeTypeAndACK(MessageType type,int lowRange, int highRange, Message m);
 boolean ParsePayload(Message m);
-boolean Flush(Message m, Network n);
+boolean Flush(Message m, LPGANNetwork n);
 
 
 /* Time things */
