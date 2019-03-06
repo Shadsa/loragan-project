@@ -2,9 +2,13 @@
 #define FACTORY_H
 
 #include <Arduino.h>
-
 #include <stdint.h>
 #include <Stream.h>
+#include "objects.h"
+
+/* GPSPoint Manipulation*/
+void IntToPoint(byte* point[2], int value);
+int PointToInt(byte* point[2]);
 
 
 /* Gateway things */

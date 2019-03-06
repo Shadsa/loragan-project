@@ -6,35 +6,51 @@
 #include <stdint.h>
 #include <Stream.h>
 
-enum ObjectType {Mote, Gateway, Station};
-enum MessageType {Message, ACK, GlobalDif}; //To check, not really friendly user
+//enum ObjectType {Mote, Gateway, Station};
+//enum MessageType {Message, ACK, GlobalDif}; //To check, not really friendly user
 
 //Define all structure for easier manipulation
 
-typedef struct Gateway
+typedef struct GPSPoint
 {
-    byte GatewayEUI[4];
-    float Longitude;
-    float Latitude;
+        
+   
+    byte Longitude[2];  //struct of bits : 0 : sign | 000 0000 0 : 3 decimal for +/- 180 deg | 000 0000 : 2 decimal for precision.
+    byte Latitude[2];   //precision around the kilometer.
+                        //store alt and long in the format 000.00
 };
+
 
 typedef struct Network
 {
     byte ID[2];
+    byte NetworkPrefix;
+};
+
+
+typedef struct Gateway
+{
+    Network* network;
+    byte GatewayEUI[4];
+    byte Status;
+    GPSPoint position;
 };
 
 typedef struct Mote
 {
-    byte DevADDR[4];
+    Network* network;
+    byte DevADDR[4];    //the 7th first bits give the network prefix. May be redundant with Network* link.
+    byte Status;
+    GPSPoint Position;
 };
 
 typedef struct Message
 {
     byte TypeAndRange;  // 00 => message type on first 2 bites | 00 0000 => Message ACK range (can ACK 64 message at best)
-                        //                                     |            Sat can only receive at best 30 msg in a minute
+                        //                                     |            Sat can only receive at best 30 msg in a minute, and a gateway will only ACK 50 message (paylaod size)
                         //                                                  so  it should be enough.
     
-    byte Payload[50];
+    byte Payload[50];   //Decode depending the message type.
 };
 
 
@@ -45,19 +61,12 @@ typedef struct SatTimers
 };
 
 
+//Store Sat configuration
 typedef struct Sat
 {
-    float Longitude;
-    float Latitude;
-
-};
-
-// TODO CONFIRM
-typedef struct Gps
-{
-    float Longitude;
-    float Latitude;
-    
+    GPSPoint Position;
+    byte MaxPayloadSize = 50;
+    SatTimers Timers;
 };
 
 
