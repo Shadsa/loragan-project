@@ -1,4 +1,6 @@
 #include <Sodaq_RN2483.h>
+#include "../../loragan_lib/custom_lib/objects.h"
+#include "../../loragan_lib/custom_lib/factory.h"
 
 #define debugSerial SerialUSB
 #define loraSerial Serial2
@@ -53,7 +55,8 @@ void LORA_Write(char *Data)
 // Waits until the data transmit is done
 void waitTillMessageGone()
 {
-    while (!Serial2.available()){
+    while (!Serial2.available())
+    {
     }
     delay(10);
     while (Serial2.available() > 0)
@@ -89,7 +92,7 @@ int LORA_Read(char *Data)
     {
         while (!Serial2.available())
             ;
-            
+
         delay(50); // Some time for the buffer to fill
 
         // Read message from RN2483 LORA chip
@@ -149,7 +152,6 @@ void setup()
     digitalWrite(LED_BUILTIN, HIGH);
 }
 
-
 void loop()
 {
     // put your main code here, to run repeatedly:
@@ -164,10 +166,10 @@ void loop()
     //delay(100);
     //SerialUSB.write("LED 2\n");
     digitalWrite(LED_GREEN, HIGH);
-    
+
     char Answer[100] = "";
     delay(1000);
-    if(LORA_Read(Answer) == 1)
+    if (LORA_Read(Answer) == 1)
     {
         digitalWrite(LED_GREEN, LOW); // Light up LED if there is a message
         SerialUSB.println(Answer);
