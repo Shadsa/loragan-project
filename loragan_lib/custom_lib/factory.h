@@ -13,24 +13,19 @@ int PointToInt(byte* point[2]);
 
 /* Gateway things */
 boolean DropGateway(Gateway gw);
-boolean IsGatewayDropped(Gateway gw);
+boolean IsGatewayDropped(Gateway gw);   //Compute if the gateway have to be dropped
 Gateway GetNextInsightGateway();
-Network GetNetworkId(Network n);
+int GetNetworkId(byte DEVADDR[4]);
 boolean IsInSightOf(Gateway gw);
-float GetGatewayLat(Gateway gw);
-float GetGatewayLong(Gateway gw)
 
 /* Payload & message manipulation */
 boolean PreparePayload(Network n);
 boolean SendMessage(Message m);
 boolean ReceiveMessage(Message m);
+int ParseType(Message m);
+boolean ParseACK();
+boolean EncodeTypeAndACK(MessageType type,int lowRange, int highRange, Message m);
 boolean ParsePayload(Message m);
-int ParseType();
-boolean IsTypeInsertion(Message m);
-boolean IsTypeDeletion(Message m);
-// TODO type : ParseTime();
-// TODO type : ParseAck();
-boolean CheckCrc(Message m);
 boolean Flush(Message m, Network n);
 
 
@@ -43,16 +38,11 @@ boolean AddMote(Mote m);
 boolean DeleteMote(Mote m);
 
 /* Others */
-Wait();
-boolean ApplyDiffId(Message m);
+boolean ApplyDiff(Message m);
 
 /* Storage */
 boolean DeleteStorageMessage(Message m);
 boolean AddStorageMessage(Message m);
 
-/* GPS */
-float GetGPSLat(Gps g);
-float GetGPSLong(Gps g);
-// TODO type : GetGPSTime();
 
 #endif // FACTORY_H
