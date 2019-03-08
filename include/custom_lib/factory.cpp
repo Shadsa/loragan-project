@@ -48,24 +48,6 @@ float PointToInt(byte point[2])
 }
 
 /*ROUTING TABLE MANAGEMENT*/
-boolean DropGateway(LPGANNetwork *network, Gateway *gw, RoutingTable *table)
-{
-    if (gw == nullptr || table == nullptr)
-        return false;
-    boolean found = false;
-    int i = 0;
-    while (i < sizeof(table->Gateways[network->ID]) && !found)
-    {
-        if (table->Gateways[network->ID][i] != nullptr && table->Gateways[network->ID][i]->GatewayEUI == gw->GatewayEUI)
-        {
-            table->Gateways[network->ID][i] = nullptr;
-            return true;
-        }
-        i++;
-    }
-
-    return false;
-}
 boolean IsGatewayDropped(Gateway *gw)
 {
     if (gw->DropRatio < 0.5)
