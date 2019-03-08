@@ -10,14 +10,13 @@
 void IntToPoint(byte point[2], float value);
 float PointToInt(byte point[2]);
 
-
 /* Gateway things */
 boolean DropGateway(Gateway *gw);
-boolean IsGatewayDropped(Gateway *gw);   //Compute if the gateway have to be dropped
-int GetNetworkId(Gateway *gw); //return -1 if gw is null
-int GetNetworkId(byte DevADDR[4],RoutingTable *table); //return -1 if table null, -2 if not found
+boolean IsGatewayDropped(Gateway *gw);                  //Compute if the gateway have to be dropped
+int GetNetworkId(Gateway *gw);                          //return -1 if gw is null
+int GetNetworkId(byte DevADDR[4], RoutingTable *table); //return -1 if table null, -2 if not found
 boolean IsInSightOf(Gateway *gw);
-Gateway* GetNextInsightGateway();
+Gateway *GetNextInsightGateway();
 boolean AddGateway(Gateway *gw);
 boolean DeleteGateway(Gateway *gw);
 
@@ -27,10 +26,9 @@ boolean SendMessage(Message m);
 boolean ReceiveMessage(Message m);
 MessageType ParseType(Message m);
 boolean ParseACK(Message m, int acks[2]);
-boolean EncodeTypeAndACK(MessageType type,int lowRange, int highRange, Message m);
+boolean EncodeTypeAndACK(MessageType type, int lowRange, int highRange, Message m);
 boolean ParsePayload(Message m);
 boolean Flush(Message m, LPGANNetwork n);
-
 
 /* Time things */
 // TODO type : GetTime();
@@ -47,6 +45,5 @@ boolean ApplyDiff(Message m);
 boolean DeleteStorageMessage(Message m);
 boolean AddStorageMessage(Message m);
 
-
 #endif // FACTORY_H
-boolean DropGateway(LPGANNetwork *network,Gateway gw, RoutingTable table);
+boolean DropGateway(LPGANNetwork *network, Gateway gw, RoutingTable table);

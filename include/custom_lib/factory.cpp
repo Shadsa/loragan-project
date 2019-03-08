@@ -1,40 +1,46 @@
 #include <Sodaq_RN2483.h>
 #include "factory.h"
 
-// GPS Point Manipulation function 
-void IntToPoint(byte point[2], float value){
+// GPS Point Manipulation function
+void IntToPoint(byte point[2], float value)
+{
 
     float integ;
     float frac = modff(value, &integ);
     int i = floor(abs(integ));
-    int f = floor(abs(frac)*100);
+    int f = floor(abs(frac) * 100);
 
     byte _i = lowByte(i);
     *point = _i << 1;
-    if(value < 0){
+    if (value < 0)
+    {
         bitWrite(*point, 0, 1);
-    } else {
+    }
+    else
+    {
         bitWrite(*point, 0, 0);
     }
 
     byte _f = lowByte(f);
-    *(point+1) = _f << 1;
-    bitWrite(*(point+1), 0, bitRead(_i, 7));
+    *(point + 1) = _f << 1;
+    bitWrite(*(point + 1), 0, bitRead(_i, 7));
 }
 
-float PointToInt(byte point[2]){
+float PointToInt(byte point[2])
+{
     SerialUSB.println();
-   
+
     bool sign = bitRead(*point, 0);
 
     byte i = *point >> 1;
-    byte f = *(point+1);
+    byte f = *(point + 1);
     //byte f = *(point+1) & 127; // not working - need to set bit manually
     bitWrite(i, 7, bitRead(f, 0));
-  
+
     float nv = (float)i;
     nv += ((f >> 1) * 0.01);
-    if(sign){
+    if (sign)
+    {
         return -nv;
     }
 
@@ -42,52 +48,61 @@ float PointToInt(byte point[2]){
 }
 
 /*ROUTING TABLE MANAGEMENT*/
-boolean DropGateway(LPGANNetwork *network, Gateway *gw, RoutingTable *table){
-    if(gw == nullptr || table == nullptr)
+boolean DropGateway(LPGANNetwork *network, Gateway *gw, RoutingTable *table)
+{
+    if (gw == nullptr || table == nullptr)
         return false;
     boolean found = false;
-    int i=0;
-    while(i<sizeof(table->Gateways[network->ID]) && !found){
-        if(table->Gateways[network->ID][i] != nullptr && table->Gateways[network->ID][i]->GatewayEUI == gw->GatewayEUI){
+    int i = 0;
+    while (i < sizeof(table->Gateways[network->ID]) && !found)
+    {
+        if (table->Gateways[network->ID][i] != nullptr && table->Gateways[network->ID][i]->GatewayEUI == gw->GatewayEUI)
+        {
             table->Gateways[network->ID][i] = nullptr;
             found = true;
         }
-        i++;           
+        i++;
     }
 
     return true;
 }
-boolean IsGatewayDropped(Gateway *gw){
-    if(gw->DropRatio<0.5)
+boolean IsGatewayDropped(Gateway *gw)
+{
+    if (gw->DropRatio < 0.5)
         return true;
     return false;
 }
 
-int GetNetworkId(Gateway *gw){
-    if(gw == nullptr)
+int GetNetworkId(Gateway *gw)
+{
+    if (gw == nullptr)
         return -1;
     return gw->Network->ID;
 }
-int GetNetworkId(byte DevADDR[4],RoutingTable *table){
+int GetNetworkId(byte DevADDR[4], RoutingTable *table)
+{
     byte cp = DevADDR[0];
-    bitWrite(cp,0,0);
-    if(table == nullptr)
+    bitWrite(cp, 0, 0);
+    if (table == nullptr)
         return -1;
     boolean found = false;
-    int i=0;
-    while(i<sizeof(table->Networks) && !found){
-        if(table->Networks[i] != nullptr && table->Networks[i]->NetworkPrefix == cp){
+    int i = 0;
+    while (i < sizeof(table->Networks) && !found)
+    {
+        if (table->Networks[i] != nullptr && table->Networks[i]->NetworkPrefix == cp)
+        {
             return table->Networks[i]->ID;
         }
-        i++;           
+        i++;
     }
     return -2;
 }
 
-boolean IsInSightOf(Gateway gw){
+boolean IsInSightOf(Gateway gw)
+{
     return false;
 }
-Gateway* GetNextInsightGateway(){
+Gateway *GetNextInsightGateway()
+{
     return nullptr;
 }
-    

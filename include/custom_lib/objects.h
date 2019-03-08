@@ -15,11 +15,11 @@ const int MAXNETWORKAGREGATION = 5;
 //enum ObjectType {Mote, Gateway, Station};
 enum MessageType
 {
-    Standard, // 00
-    ACK, // 01
+    Standard,    // 00
+    ACK,         // 01
     Inscription, // 10
-    GlobalDif // 11
-}; //To check, not really friendly user
+    GlobalDif    // 11
+};               //To check, not really friendly user
 
 //Define all structure for easier manipulation
 
@@ -38,7 +38,7 @@ typedef struct LPGANNetwork
 
 typedef struct Gateway
 {
-    LPGANNetwork* Network;
+    LPGANNetwork *Network;
     byte GatewayEUI[8];
     GPSPoint Position;
     float DropRatio = 0; // it's the Success/Transmit ratio. Below 0.5, the gateway will be droped.
@@ -53,12 +53,12 @@ typedef struct Mote
 
 typedef struct Message
 {
-    byte Type;               // 00 => message type on first 2 bits 
-    byte AckRange;              // 0000 0000 => Message ACK range (can ACK 64 message at best)
-                             // Sat can only receive at best 30 msg in a minute, and a gateway will only ACK 50 message (paylaod size)
-                             // so  it should be enough. For ACK only one message, range should be the same number repeated. 
-                             // In case of no ACK, leave it null (fill with 0)
-    byte Payload[50];        //Decode depending the message type.
+    byte Type;        // 00 => message type on first 2 bits
+    byte AckRange;    // 0000 0000 => Message ACK range (can ACK 64 message at best)
+                      // Sat can only receive at best 30 msg in a minute, and a gateway will only ACK 50 message (paylaod size)
+                      // so  it should be enough. For ACK only one message, range should be the same number repeated.
+                      // In case of no ACK, leave it null (fill with 0)
+    byte Payload[50]; //Decode depending the message type.
 };
 
 //Define all timers for the Sat Algo
@@ -66,7 +66,7 @@ typedef struct SatTimers
 {
     byte ListenTime = 1;     //Listening time in minute for the case of global packet ACK
     byte MessageTimeout = 1; //Time in day when a message will expire if not delivered
-}; 
+};
 
 //Store Sat configuration
 typedef struct Sat
@@ -85,12 +85,12 @@ typedef struct Sat
 
 typedef struct RoutingTable
 {
-    
-    int* NetworksLocalDif[MAXNETWORKAGREGATION];                         //List of dif stage by Network
-    int GlobalDif;                                                      //Num of the GlobalDif (Autoritative server only)
-    LPGANNetwork* Networks[MAXNETWORKAGREGATION];                             //List of Networks allowed and their ID
-    Gateway* Gateways[MAXNETWORKAGREGATION][MAXROUTINGTABLEGATEWAYSIZE]; //List of allowed gateway by network
-    Mote* Motes[MAXNETWORKAGREGATION][MAXROUTINGTABLEMOTESIZE];          //List of subscribed mote by Network
+
+    int *NetworksLocalDif[MAXNETWORKAGREGATION];                         //List of dif stage by Network
+    int GlobalDif;                                                       //Num of the GlobalDif (Autoritative server only)
+    LPGANNetwork *Networks[MAXNETWORKAGREGATION];                        //List of Networks allowed and their ID
+    Gateway *Gateways[MAXNETWORKAGREGATION][MAXROUTINGTABLEGATEWAYSIZE]; //List of allowed gateway by network
+    Mote *Motes[MAXNETWORKAGREGATION][MAXROUTINGTABLEMOTESIZE];          //List of subscribed mote by Network
 };
 
 #endif // OBJECTS_H
