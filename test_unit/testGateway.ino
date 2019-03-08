@@ -1,8 +1,8 @@
 #ifndef INO
 #define INO
 #include <Sodaq_RN2483.h>
-#include "libraries/ThingSat/objects.h"
-#include "libraries/ThingSat/factory.h"
+#include "../libraries/ThingSat_v1/objects.h"
+#include "../libraries/ThingSat_v1/factory.h"
 
 
 #define debugSerial SerialUSB
