@@ -11,14 +11,14 @@ void IntToPoint(byte point[2], float value);
 float PointToInt(byte point[2]);
 
 /* Gateway things */
-boolean DropGateway(Gateway *gw);
+boolean DropGateway(Gateway *gw);                       // Return false in case of nullptr or gateway not found, true if it found it and delete it
 boolean IsGatewayDropped(Gateway *gw);                  //Compute if the gateway have to be dropped
 int GetNetworkId(Gateway *gw);                          //return -1 if gw is null
 int GetNetworkId(byte DevADDR[4], RoutingTable *table); //return -1 if table null, -2 if not found
 boolean IsInSightOf(Gateway *gw);
 Gateway *GetNextInsightGateway();
-boolean AddGateway(Gateway *gw);
-boolean DeleteGateway(Gateway *gw);
+boolean AddGateway(Gateway *gw, LPGANNetwork *network, RoutingTable *table);
+boolean DeleteGateway(Gateway *gw, LPGANNetwork *network, RoutingTable *table);
 
 /* Payload & message manipulation */
 boolean PreparePayload(LPGANNetwork n);

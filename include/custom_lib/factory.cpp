@@ -59,12 +59,12 @@ boolean DropGateway(LPGANNetwork *network, Gateway *gw, RoutingTable *table)
         if (table->Gateways[network->ID][i] != nullptr && table->Gateways[network->ID][i]->GatewayEUI == gw->GatewayEUI)
         {
             table->Gateways[network->ID][i] = nullptr;
-            found = true;
+            return true;
         }
         i++;
     }
 
-    return true;
+    return false;
 }
 boolean IsGatewayDropped(Gateway *gw)
 {
@@ -85,9 +85,8 @@ int GetNetworkId(byte DevADDR[4], RoutingTable *table)
     bitWrite(cp, 0, 0);
     if (table == nullptr)
         return -1;
-    boolean found = false;
     int i = 0;
-    while (i < sizeof(table->Networks) && !found)
+    while (i < sizeof(table->Networks))
     {
         if (table->Networks[i] != nullptr && table->Networks[i]->NetworkPrefix == cp)
         {
@@ -105,4 +104,38 @@ boolean IsInSightOf(Gateway gw)
 Gateway *GetNextInsightGateway()
 {
     return nullptr;
+}
+
+boolean AddGateway(Gateway *gw, LPGANNetwork *network, RoutingTable *table)
+{
+    if (gw == nullptr || table == nullptr)
+        return false;
+    int i = 0;
+    while (i < sizeof(table->Gateways[network->ID]))
+    {
+        if (table->Gateways[network->ID][i] == nullptr)
+        {
+            table->Gateways[network->ID][i] = gw;
+            return true;
+        }
+        i++;
+    }
+    return false;
+}
+boolean DeleteGateway(Gateway *gw, LPGANNetwork *network, RoutingTable *table)
+{
+    if (gw == nullptr || table == nullptr)
+        return false;
+    boolean found = false;
+    int i = 0;
+    while (i < sizeof(table->Gateways[network->ID]) && !found)
+    {
+        if (table->Gateways[network->ID][i] != nullptr && table->Gateways[network->ID][i]->GatewayEUI == gw->GatewayEUI)
+        {
+            table->Gateways[network->ID][i] = nullptr;
+            return true;
+        }
+        i++;
+    }
+    return false;
 }
