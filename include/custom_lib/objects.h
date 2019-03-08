@@ -15,10 +15,10 @@ const int MAXNETWORKAGREGATION = 5;
 //enum ObjectType {Mote, Gateway, Station};
 enum MessageType
 {
-    Standard,
-    ACK,
-    Inscription,
-    GlobalDif
+    Standard, // 00
+    ACK, // 01
+    Inscription, // 10
+    GlobalDif // 11
 }; //To check, not really friendly user
 
 //Define all structure for easier manipulation
@@ -53,10 +53,11 @@ typedef struct Mote
 
 typedef struct Message
 {
-    byte TypeAndRange;       // 00 => message type on first 2 bits | 00 0000 => Message ACK range (can ACK 64 message at best)
-                             //                                     |            Sat can only receive at best 30 msg in a minute, and a gateway will only ACK 50 message (paylaod size)
-                             //                                                  so  it should be enough. For ACK only one message, range should be the same number repeated. In case of no
-                             //                                                  ACK, leave it null (fill with 0)
+    byte Type;               // 00 => message type on first 2 bits 
+    byte AckRange;              // 0000 0000 => Message ACK range (can ACK 64 message at best)
+                             // Sat can only receive at best 30 msg in a minute, and a gateway will only ACK 50 message (paylaod size)
+                             // so  it should be enough. For ACK only one message, range should be the same number repeated. 
+                             // In case of no ACK, leave it null (fill with 0)
     byte SenderDevADDR[4];   //DevADDR could be GatewayEUI also
     byte ReceiverDevADDR[4]; //DevADDR could be GatewayEUI also
     byte Payload[50];        //Decode depending the message type.
