@@ -7,8 +7,8 @@
 #include "objects.h"
 
 /* GPSPoint Manipulation*/
-void IntToPoint(byte* point[2], float value);
-int PointToInt(byte* point[2]);
+void IntToPoint(byte point[], float value);
+float PointToInt(byte point[]);
 
 
 /* Gateway things */
@@ -46,3 +46,4 @@ boolean AddStorageMessage(Message m);
 
 
 #endif // FACTORY_H
+boolean DropGateway(LPGANNetwork *network,Gateway gw, RoutingTable table);

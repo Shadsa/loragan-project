@@ -1,3 +1,7 @@
+#ifndef INO
+#define INO
+
+
 #include <Sodaq_RN2483.h>
 #include "include/custom_lib/objects.h"
 #include "include/custom_lib/factory.h"
@@ -179,3 +183,5 @@ void loop()
 
     delay(5000);
 }
+
+#endif
