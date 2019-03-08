@@ -41,3 +41,8 @@ http://downloads.sodaq.net/package_sodaq_samd_index.json
 - Lien utile 
     + Pour mote
         . https://support.sodaq.com/sodaq-one
+
+
+
+
+- Usage du runner : Lancer le script de positionnement des fichiers, puis lancer le sketch présent dans le runner. Le runner est ignoré par le git.
