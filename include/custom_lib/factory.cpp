@@ -2,7 +2,7 @@
 #include "factory.h"
 
 // GPS Point Manipulation function 
-void IntToPoint(byte point[], float value){
+void IntToPoint(byte point[2], float value){
 
     float integ;
     float frac = modff(value, &integ);
@@ -22,7 +22,7 @@ void IntToPoint(byte point[], float value){
     bitWrite(*(point+1), 0, bitRead(_i, 7));
 }
 
-float PointToInt(byte point[]){
+float PointToInt(byte point[2]){
     SerialUSB.println();
    
     bool sign = bitRead(*point, 0);
@@ -62,3 +62,32 @@ boolean IsGatewayDropped(Gateway *gw){
         return true;
     return false;
 }
+
+int GetNetworkId(Gateway *gw){
+    if(gw == nullptr)
+        return -1;
+    return gw->Network->ID;
+}
+int GetNetworkId(byte DevADDR[4],RoutingTable *table){
+    byte cp = DevADDR[0];
+    bitWrite(cp,0,0);
+    if(table == nullptr)
+        return -1;
+    boolean found = false;
+    int i=0;
+    while(i<sizeof(table->Networks) && !found){
+        if(table->Networks[i] != nullptr && table->Networks[i]->NetworkPrefix == cp){
+            return table->Networks[i]->ID;
+        }
+        i++;           
+    }
+    return -2;
+}
+
+boolean IsInSightOf(Gateway gw){
+    return false;
+}
+Gateway* GetNextInsightGateway(){
+    return nullptr;
+}
+    

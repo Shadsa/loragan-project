@@ -33,13 +33,13 @@ typedef struct GPSPoint
 typedef struct LPGANNetwork
 {
     int ID;
-    byte NetworkPrefix;
+    byte NetworkPrefix; //We support only network wich have 1 byte of prefix for the moment
 };
 
 typedef struct Gateway
 {
     LPGANNetwork* Network;
-    byte GatewayEUI[4];
+    byte GatewayEUI[8];
     GPSPoint Position;
     float DropRatio = 0; // it's the Success/Transmit ratio. Below 0.5, the gateway will be droped.
 };
@@ -53,12 +53,10 @@ typedef struct Mote
 
 typedef struct Message
 {
-    byte TypeAndRange;       // 00 => message type on first 2 bits | 00 0000 => Message ACK range (can ACK 64 message at best)
+    byte TypeAndRange;       // 00 => message type on first 2 bits | 000 000 => Message ACK range (can ACK 64 message at best)
                              //                                     |            Sat can only receive at best 30 msg in a minute, and a gateway will only ACK 50 message (paylaod size)
                              //                                                  so  it should be enough. For ACK only one message, range should be the same number repeated. In case of no
                              //                                                  ACK, leave it null (fill with 0)
-    byte SenderDevADDR[4];   //DevADDR could be GatewayEUI also
-    byte ReceiverDevADDR[4]; //DevADDR could be GatewayEUI also
     byte Payload[50];        //Decode depending the message type.
 };
 
