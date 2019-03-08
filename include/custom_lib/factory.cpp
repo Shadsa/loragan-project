@@ -62,3 +62,37 @@ boolean IsGatewayDropped(Gateway *gw){
         return true;
     return false;
 }
+
+boolean ParseACK(Message *m, int acks[2]){
+    acks[0] = (int)(m->AckRange[0]);
+    acks[1] = (int)(m->AckRange[1]);
+
+    if((acks[0] < 0 || acks[1] < 0) || (acks[1] < acks[0])){
+        return false;
+    }
+
+    return true;
+}
+
+boolean ParseType(Message *m, MessageType *t){
+    switch(m->Type){
+        case 0:
+            *t = Standard;
+            return true;
+            break;
+        case 1:
+            *t = ACK;
+            return true;
+            break;
+        case 2:
+            *t = Inscription;
+            return true;
+            break;
+        case 3:
+            *t = GlobalDif;
+            return true;
+            break;
+        default:
+            return false;
+    }
+}
