@@ -1,3 +1,6 @@
 
+#VSCode setup
 \.vscode/
-\.runner/runtime/
+
+#Runner 
+runner/runtime/
