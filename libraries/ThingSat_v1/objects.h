@@ -71,8 +71,6 @@ typedef struct Diff
 };
 
 
-
-
 //Define all timers for the Sat Algo
 typedef struct SatTimers
 {

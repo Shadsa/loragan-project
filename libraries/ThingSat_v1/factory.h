@@ -45,7 +45,7 @@ boolean Flush(Message m, LPGANNetwork n);
 
 
 /* Others */
-boolean ApplyDiff(Message m);
+boolean ApplyDiff(Diff d);
 
 /* Storage */
 boolean DeleteStorageMessage(Message m);
