@@ -2,7 +2,7 @@
 #include "Arduino.h"
 #include "factory.h"
 
-/* GPS Point Manipulation function */
+/* GPS POINT MANIPULATION FUNCTION */
 void IntToPoint(byte point[2], float value)
 {
 
@@ -160,6 +160,8 @@ boolean DeleteMote(Mote *m, LPGANNetwork *network, RoutingTable *table)
     return false;
 }
 
+//Getter, return nullptr if not found
+
 Gateway *foundGatewayByEUI(byte GatewayEUI[8], RoutingTable *table)
 {
 
@@ -228,6 +230,27 @@ Mote *foundMoteByID(byte MoteID[2], RoutingTable *table)
     return nullptr;
 }
 
+LPGANNetwork *foundNetworkByID(short NetID, RoutingTable *table)
+{
+    for (int i = 0; i < MAXNETWORKAGREGATION; i++)
+    {
+        if (table->Networks[i] != nullptr && table->Networks[i]->ID == NetID)
+            return table->Networks[i];
+    }
+
+    return nullptr;
+}
+
+LPGANNetwork *foundNetworkByPrefix(byte Prefix, RoutingTable *table)
+{
+    for (int i = 0; i < MAXNETWORKAGREGATION; i++)
+    {
+        if (table->Networks[i] != nullptr && table->Networks[i]->NetworkPrefix == Prefix)
+            return table->Networks[i];
+    }
+
+    return nullptr;
+}
 
 /* MESSAGE TREATMENT*/
 
