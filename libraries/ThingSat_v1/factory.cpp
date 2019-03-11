@@ -2,7 +2,7 @@
 #include "Arduino.h"
 #include "factory.h"
 
-// GPS Point Manipulation function
+/* GPS Point Manipulation function */
 void IntToPoint(byte point[2], float value)
 {
 
@@ -48,6 +48,19 @@ float PointToInt(byte point[2])
     return nv;
 }
 
+/* GPS FUNCTION */
+
+
+boolean IsInSightOf(Gateway gw)
+{
+    return false;
+}
+Gateway *GetNextInsightGateway()
+{
+    return nullptr;
+}
+
+
 /*ROUTING TABLE MANAGEMENT*/
 boolean IsGatewayDropped(Gateway *gw)
 {
@@ -78,15 +91,6 @@ int GetNetworkId(byte DevADDR[4], RoutingTable *table)
         i++;
     }
     return -2;
-}
-
-boolean IsInSightOf(Gateway gw)
-{
-    return false;
-}
-Gateway *GetNextInsightGateway()
-{
-    return nullptr;
 }
 
 boolean AddGateway(Gateway *gw, LPGANNetwork *network, RoutingTable *table)
