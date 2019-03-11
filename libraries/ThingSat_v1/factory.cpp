@@ -291,3 +291,4 @@ boolean ParseType(Message *m, MessageType *t)
         return false;
     }
 }
+

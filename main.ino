@@ -1,12 +1,9 @@
 #ifndef INO
 #define INO
 
-
 #include <Sodaq_RN2483.h>
-#include "objects.h"
-#include "factory.h"
-
-
+#include "libraries/ThingSat_v1/objects.h"
+#include "libraries/ThingSat_v1/factory.h"
 
 #define debugSerial SerialUSB
 #define loraSerial Serial2
@@ -14,7 +11,8 @@
 int8_t trPower = 1;              // Transreceiver power  ( can be -3 to 15)
 String SprFactor = "sf12";       // Spreadingsfactor     (can be sf7 to sf12)
 uint8_t max_dataSize = 100;      // Maximum charcount to avoid writing outside of string
-unsigned long readDelay = 60000; // Time to read for messages in ms (max 4294967295 ms, 0 to disable)
+unsigned long readDelay = 10000; // Time to read for messages in ms (max 4294967295 ms, 0 to disable)
+                                 // 10S instead of 60 in order to divide the listen time in more easy to use delay
 
 const char CR = '\r';
 const char LF = '\n';
@@ -106,7 +104,7 @@ int LORA_Read(char *Data)
         {
             Buffer += (char)Serial2.read();
         }
-
+      
         // If there is an incoming message
         if (Buffer.startsWith(dataStr, 0)) // if there is a message in the buffer
         {
@@ -138,7 +136,7 @@ void FlushSerialBufferIn()
 {
     while (Serial2.available() > 0)
     {
-        SerialUSB.println(Serial2.read());
+        Serial2.read();
     }
 }
 
@@ -148,14 +146,55 @@ void setup()
     SerialUSB.begin(57600);
     Serial2.begin(57600);
 
-    pinMode(LED_BUILTIN, OUTPUT);
+    //pinMode(LED_BUILTIN, OUTPUT);
     pinMode(LED_GREEN, OUTPUT);
 
     while (!SerialUSB && millis() < 1000)
         ;
 
     LoraP2P_Setup();
-    digitalWrite(LED_BUILTIN, HIGH);
+    digitalWrite(LED_GREEN, HIGH);
+    digitalWrite(LED_GREEN,LOW  ); // Light up LED if there is a message
+    delay(5000);
+    digitalWrite(LED_GREEN, HIGH);
+    
+}
+
+void LoopRead(){
+    char Answer[100] = "";
+    long actualtime = millis();
+    SerialUSB.println("**************** ENTERING LISTENING LOOP *********************");
+    while (millis() < actualtime + 6 * readDelay)
+    {
+        if (LORA_Read(Answer) == 1)
+        {
+            digitalWrite(LED_GREEN,LOW  ); // Light up LED if there is a message
+            SerialUSB.println(Answer);
+            digitalWrite(LED_GREEN, HIGH);
+        }
+
+    }
+    SerialUSB.println("**************** Exiting LISTENING LOOP *********************");
+}
+
+void LoopRead(long next_interruption){
+    char Answer[100] = "";
+    long actualtime = millis();
+    SerialUSB.println("**************** ENTERING LISTENING LOOP *********************");
+    while (millis() < actualtime + 6 * readDelay)
+    {
+        if (LORA_Read(Answer) == 1)
+        {
+            digitalWrite(LED_GREEN,LOW  ); // Light up LED if there is a message
+            SerialUSB.println(Answer);
+            digitalWrite(LED_GREEN, HIGH);
+        }
+
+        if(millis()+1000 >= next_interruption){
+            break;
+        }
+    }
+    SerialUSB.println("**************** Exiting LISTENING LOOP *********************");
 }
 
 void loop()
@@ -164,24 +203,12 @@ void loop()
 
     // Some data to send
     char Data[1000] = "4141414142";
-    SerialUSB.write("Envois de paquet\n");
 
     LORA_Write(Data);
-    //SerialUSB.write("LED 1\n");
-    //digitalWrite(LED_GREEN, LOW); // To let us know when the data is send
-    //delay(100);
-    //SerialUSB.write("LED 2\n");
-    digitalWrite(LED_GREEN, HIGH);
-
-    char Answer[100] = "";
-    delay(1000);
-    if (LORA_Read(Answer) == 1)
-    {
-        digitalWrite(LED_GREEN, LOW); // Light up LED if there is a message
-        SerialUSB.println(Answer);
-    }
-
-    delay(5000);
+    
+    delay(1000); //DO NOT TOUCH !! BREAKING CODE EVERY TIME
+    
+    LoopRead();
 }
 
 #endif

@@ -79,7 +79,7 @@ void StartLoraRead()
 // Returns 1 if there is a message  //
 // Returns 2 if there is no message //
 //////////////////////////////////////
-int LORA_Read(char *Data)
+int LORA_Read(char *Data,long start)
 {
     int messageFlag = 0;
     String dataStr = "radio_rx  ";
@@ -90,7 +90,7 @@ int LORA_Read(char *Data)
 
     StartLoraRead();
 
-    while (messageFlag == 0) // As long as there is no message
+    while (messageFlag == 0 && millis()-start < 60000) // As long as there is no message
     {
         while (!Serial2.available())
             ;
@@ -134,7 +134,7 @@ void FlushSerialBufferIn()
 {
     while (Serial2.available() > 0)
     {
-        SerialUSB.println(Serial2.read());
+       Serial2.read();
     }
 }
 
