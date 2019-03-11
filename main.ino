@@ -191,7 +191,7 @@ void LoopRead(long next_interruption){
         }
 
         if(millis()+1000 >= next_interruption){
-            return;
+            break;
         }
     }
     SerialUSB.println("**************** Exiting LISTENING LOOP *********************");
