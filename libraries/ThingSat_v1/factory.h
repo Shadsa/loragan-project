@@ -45,4 +45,3 @@ boolean DeleteStorageMessage(Message m);
 boolean AddStorageMessage(Message m);
 
 #endif // FACTORY_H
-boolean DropGateway(LPGANNetwork *network, Gateway gw, RoutingTable table);
