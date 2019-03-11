@@ -56,6 +56,7 @@ typedef struct Mote
 typedef struct Message
 {
     byte Type;        // 00 => message type on first 2 bits
+    byte MessageID[2]; // Never send in message, local storage utility only for buffering
     byte AckRange[2]; // byte 0 : low boundary - byte 1 : high boundary => Message ACK range (can ACK 64 message at best)
                       // Sat can only receive at best 30 msg in a minute, and a gateway will only ACK 50 message (paylaod size)
                       // so  it should be enough. For ACK only one message, range should be the same number repeated.

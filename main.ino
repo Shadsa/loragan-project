@@ -168,7 +168,7 @@ void LoopRead(){
     {
         if (LORA_Read(Answer) == 1)
         {
-            digitalWrite(LED_GREEN,LOW  ); // Light up LED if there is a message
+            digitalWrite(LED_GREEN, LOW); // Light up LED if there is a message
             SerialUSB.println(Answer);
             digitalWrite(LED_GREEN, HIGH);
         }
