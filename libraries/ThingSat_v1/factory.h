@@ -48,7 +48,7 @@ boolean Flush(Message m, LPGANNetwork n);
 boolean ApplyDiff(Diff d);
 
 /* Storage */
-boolean DeleteStorageMessage(Message m);
-boolean AddStorageMessage(Message m);
+boolean DeleteStorageMessage(Message m, Message *buffer[]);
+boolean AddStorageMessage(Message m, Message *buffer[]);
 
 #endif // FACTORY_H

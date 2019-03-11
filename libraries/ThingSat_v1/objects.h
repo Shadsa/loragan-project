@@ -70,7 +70,6 @@ typedef struct Diff
     byte *DiffData[47];
 };
 
-
 //Define all timers for the Sat Algo
 typedef struct SatTimers
 {
