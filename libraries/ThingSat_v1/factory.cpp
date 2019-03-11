@@ -67,13 +67,13 @@ boolean IsGatewayDropped(Gateway *gw)
     return false;
 }
 
-int GetNetworkId(Gateway *gw)
+short GetNetworkId(Gateway *gw)
 {
     if (gw == nullptr)
         return -1;
     return gw->Network->ID;
 }
-int GetNetworkId(byte DevADDR[4], RoutingTable *table)
+short GetNetworkId(byte DevADDR[4], RoutingTable *table)
 {
     byte cp = DevADDR[0];
     bitWrite(cp, 0, 0);
@@ -115,7 +115,7 @@ boolean DeleteGateway(Gateway *gw, LPGANNetwork *network, RoutingTable *table)
     int i = 0;
     while (i < sizeof(table->Gateways[network->ID]) && !found)
     {
-        if (table->Gateways[network->ID][i] != nullptr && table->Gateways[network->ID][i]->GatewayEUI == gw->GatewayEUI)
+        if (table->Gateways[network->ID][i] != nullptr && table->Gateways[network->ID][i]->GatewayID == gw->GatewayID)
         {
             table->Gateways[network->ID][i] = nullptr;
             return true;
@@ -159,6 +159,75 @@ boolean DeleteMote(Mote *m, LPGANNetwork *network, RoutingTable *table)
     }
     return false;
 }
+
+Gateway *foundGatewayByEUI(byte GatewayEUI[8], RoutingTable *table)
+{
+
+    for (int i = 0; i < MAXNETWORKAGREGATION; i++)
+    {
+        for (int j = 0; j < MAXROUTINGTABLEGATEWAYSIZE; j++)
+        {
+            if (table->Gateways[i][j] != nullptr && table->Gateways[i][j]->GatewayEUI == GatewayEUI)
+            {
+                return table->Gateways[i][j];
+            }
+        }
+    }
+
+    return nullptr;
+}
+
+Gateway *foundGatewayByID(byte GatewayID[2], RoutingTable *table)
+{
+
+    for (int i = 0; i < MAXNETWORKAGREGATION; i++)
+    {
+        for (int j = 0; j < MAXROUTINGTABLEGATEWAYSIZE; j++)
+        {
+            if (table->Gateways[i][j] != nullptr && table->Gateways[i][j]->GatewayID == GatewayID)
+            {
+                return table->Gateways[i][j];
+            }
+        }
+    }
+
+    return nullptr;
+}
+
+Mote *foundMoteByDEVADDR(byte DEVADDR[4], RoutingTable *table)
+{
+
+    for (int i = 0; i < MAXNETWORKAGREGATION; i++)
+    {
+        for (int j = 0; j < MAXROUTINGTABLEMOTESIZE; j++)
+        {
+            if (table->Motes[i][j] != nullptr && table->Motes[i][j]->DevADDR == DEVADDR)
+            {
+                return table->Motes[i][j];
+            }
+        }
+    }
+
+    return nullptr;
+}
+
+Mote *foundMoteByID(byte MoteID[2], RoutingTable *table)
+{
+
+    for (int i = 0; i < MAXNETWORKAGREGATION; i++)
+    {
+        for (int j = 0; j < MAXROUTINGTABLEMOTESIZE; j++)
+        {
+            if (table->Motes[i][j] != nullptr && table->Motes[i][j]->MoteID == MoteID)
+            {
+                return table->Motes[i][j];
+            }
+        }
+    }
+
+    return nullptr;
+}
+
 
 /* MESSAGE TREATMENT*/
 

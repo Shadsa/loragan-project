@@ -17,7 +17,7 @@ cf (https://github.com/arduino/ArduinoCore-samd/issues/36)
                 "\\Arduino\\**",
                 "\\Arduino\\libraries\\TheThingsNetwork\\src\\**",
                 "Arduino15\\packages\\**"
-                "${workspaceRoot}\\include" => ligne très importante !!!! permet de lire nos propres lib
+                "${workspaceRoot}\\libraries\\**",  => ligne très importante !!!! permet de lire nos propres lib
             ],
             "forcedInclude": [
                 "Arduino15\\packages\\SODAQ\\hardware\\samd\\1.6.19\\cores\\arduino\\Arduino.h",

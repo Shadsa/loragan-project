@@ -32,13 +32,14 @@ typedef struct GPSPoint
 
 typedef struct LPGANNetwork
 {
-    int ID;
+    short ID;
     byte NetworkPrefix; //We support only network wich have 1 byte of prefix for the moment
 };
 
 typedef struct Gateway
 {
     LPGANNetwork *Network;
+    byte GatewayID[2];
     byte GatewayEUI[8];
     GPSPoint Position;
     float DropRatio = 0; // it's the Success/Transmit ratio. Below 0.5, the gateway will be droped.
@@ -48,6 +49,7 @@ typedef struct Mote
 {
     LPGANNetwork *Network;
     byte DevADDR[4]; //the 7th first bits give the network prefix. May be redundant with Network* link.
+    byte MoteID[2];
     GPSPoint Position;
 };
 
