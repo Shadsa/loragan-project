@@ -63,6 +63,16 @@ typedef struct Message
     byte Payload[50]; //Decode depending the message type.
 };
 
+typedef struct Diff
+{
+    short DiffNumber;
+    byte AddFlag;
+    byte *DiffData[47];
+};
+
+
+
+
 //Define all timers for the Sat Algo
 typedef struct SatTimers
 {
