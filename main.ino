@@ -2,8 +2,8 @@
 #define INO
 
 #include <Sodaq_RN2483.h>
-#include "objects.h"
-#include "factory.h"
+#include "libraries/ThingSat_v1/objects.h"
+#include "libraries/ThingSat_v1/factory.h"
 
 #define debugSerial SerialUSB
 #define loraSerial Serial2
@@ -160,18 +160,8 @@ void setup()
     
 }
 
-void loop()
-{
-    // put your main code here, to run repeatedly:
-
-    // Some data to send
-    char Data[1000] = "4141414142";
-
-    LORA_Write(Data);
+void LoopRead(){
     char Answer[100] = "";
-    delay(1000); //DO NOT TOUCH !! BREAKING CODE EVERY TIME
-    
-
     long actualtime = millis();
     SerialUSB.println("**************** ENTERING LISTENING LOOP *********************");
     while (millis() < actualtime + 6 * readDelay)
@@ -182,8 +172,43 @@ void loop()
             SerialUSB.println(Answer);
             digitalWrite(LED_GREEN, HIGH);
         }
+
     }
     SerialUSB.println("**************** Exiting LISTENING LOOP *********************");
+}
+
+void LoopRead(long next_interruption){
+    char Answer[100] = "";
+    long actualtime = millis();
+    SerialUSB.println("**************** ENTERING LISTENING LOOP *********************");
+    while (millis() < actualtime + 6 * readDelay)
+    {
+        if (LORA_Read(Answer) == 1)
+        {
+            digitalWrite(LED_GREEN,LOW  ); // Light up LED if there is a message
+            SerialUSB.println(Answer);
+            digitalWrite(LED_GREEN, HIGH);
+        }
+
+        if(millis()+1000 >= next_interruption){
+            return;
+        }
+    }
+    SerialUSB.println("**************** Exiting LISTENING LOOP *********************");
+}
+
+void loop()
+{
+    // put your main code here, to run repeatedly:
+
+    // Some data to send
+    char Data[1000] = "4141414142";
+
+    LORA_Write(Data);
+    
+    delay(1000); //DO NOT TOUCH !! BREAKING CODE EVERY TIME
+    
+    LoopRead();
 }
 
 #endif
