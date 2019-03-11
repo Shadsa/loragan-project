@@ -1,11 +1,13 @@
-param($scriptname = "", $version = "")
+param($scriptname = "", $version = "v1")
 
 $runnerpath = "./runtime/";
 $testpath = "../test_unit/";
 $libpath = "../libraries/";
-$libname ="ThingSat";
+$libname ="ThingSat_";
 
-Copy-Item -Path $testpath+$scriptname -Destination C:\test2\;
+Remove-Item $runnerpath"/*"
+Copy-Item -Path $testpath$scriptname -Destination $runnerpath;
+Copy-Item -Path $libpath$libname$version"/*" -Destination $runnerpath;
 
 
 

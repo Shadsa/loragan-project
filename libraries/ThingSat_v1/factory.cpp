@@ -2,7 +2,7 @@
 #include "Arduino.h"
 #include "factory.h"
 
-// GPS Point Manipulation function
+/* GPS POINT MANIPULATION FUNCTION */
 void IntToPoint(byte point[2], float value)
 {
 
@@ -48,6 +48,17 @@ float PointToInt(byte point[2])
     return nv;
 }
 
+/* GPS FUNCTION */
+
+boolean IsInSightOf(Gateway gw)
+{
+    return false;
+}
+Gateway *GetNextInsightGateway()
+{
+    return nullptr;
+}
+
 /*ROUTING TABLE MANAGEMENT*/
 boolean IsGatewayDropped(Gateway *gw)
 {
@@ -56,13 +67,13 @@ boolean IsGatewayDropped(Gateway *gw)
     return false;
 }
 
-int GetNetworkId(Gateway *gw)
+short GetNetworkId(Gateway *gw)
 {
     if (gw == nullptr)
         return -1;
     return gw->Network->ID;
 }
-int GetNetworkId(byte DevADDR[4], RoutingTable *table)
+short GetNetworkId(byte DevADDR[4], RoutingTable *table)
 {
     byte cp = DevADDR[0];
     bitWrite(cp, 0, 0);
@@ -78,15 +89,6 @@ int GetNetworkId(byte DevADDR[4], RoutingTable *table)
         i++;
     }
     return -2;
-}
-
-boolean IsInSightOf(Gateway gw)
-{
-    return false;
-}
-Gateway *GetNextInsightGateway()
-{
-    return nullptr;
 }
 
 boolean AddGateway(Gateway *gw, LPGANNetwork *network, RoutingTable *table)
@@ -113,7 +115,7 @@ boolean DeleteGateway(Gateway *gw, LPGANNetwork *network, RoutingTable *table)
     int i = 0;
     while (i < sizeof(table->Gateways[network->ID]) && !found)
     {
-        if (table->Gateways[network->ID][i] != nullptr && table->Gateways[network->ID][i]->GatewayEUI == gw->GatewayEUI)
+        if (table->Gateways[network->ID][i] != nullptr && table->Gateways[network->ID][i]->GatewayID == gw->GatewayID)
         {
             table->Gateways[network->ID][i] = nullptr;
             return true;
@@ -123,39 +125,169 @@ boolean DeleteGateway(Gateway *gw, LPGANNetwork *network, RoutingTable *table)
     return false;
 }
 
+boolean AddMote(Mote *m, LPGANNetwork *network, RoutingTable *table)
+{
+    if (m == nullptr || table == nullptr)
+        return false;
+    int i = 0;
+    while (i < sizeof(table->Motes[network->ID]))
+    {
+        if (table->Motes[network->ID][i] == nullptr)
+        {
+            table->Motes[network->ID][i] = m;
+            return true;
+        }
+        i++;
+    }
+    return false;
+}
+
+boolean DeleteMote(Mote *m, LPGANNetwork *network, RoutingTable *table)
+{
+    if (m == nullptr || table == nullptr)
+        return false;
+    boolean found = false;
+    int i = 0;
+    while (i < sizeof(table->Motes[network->ID]) && !found)
+    {
+        if (table->Motes[network->ID][i] != nullptr && table->Motes[network->ID][i]->DevADDR == m->DevADDR)
+        {
+            table->Motes[network->ID][i] = nullptr;
+            return true;
+        }
+        i++;
+    }
+    return false;
+}
+
+//Getter, return nullptr if not found
+
+Gateway *foundGatewayByEUI(byte GatewayEUI[8], RoutingTable *table)
+{
+
+    for (int i = 0; i < MAXNETWORKAGREGATION; i++)
+    {
+        for (int j = 0; j < MAXROUTINGTABLEGATEWAYSIZE; j++)
+        {
+            if (table->Gateways[i][j] != nullptr && table->Gateways[i][j]->GatewayEUI == GatewayEUI)
+            {
+                return table->Gateways[i][j];
+            }
+        }
+    }
+
+    return nullptr;
+}
+
+Gateway *foundGatewayByID(byte GatewayID[2], RoutingTable *table)
+{
+
+    for (int i = 0; i < MAXNETWORKAGREGATION; i++)
+    {
+        for (int j = 0; j < MAXROUTINGTABLEGATEWAYSIZE; j++)
+        {
+            if (table->Gateways[i][j] != nullptr && table->Gateways[i][j]->GatewayID == GatewayID)
+            {
+                return table->Gateways[i][j];
+            }
+        }
+    }
+
+    return nullptr;
+}
+
+Mote *foundMoteByDEVADDR(byte DEVADDR[4], RoutingTable *table)
+{
+
+    for (int i = 0; i < MAXNETWORKAGREGATION; i++)
+    {
+        for (int j = 0; j < MAXROUTINGTABLEMOTESIZE; j++)
+        {
+            if (table->Motes[i][j] != nullptr && table->Motes[i][j]->DevADDR == DEVADDR)
+            {
+                return table->Motes[i][j];
+            }
+        }
+    }
+
+    return nullptr;
+}
+
+Mote *foundMoteByID(byte MoteID[2], RoutingTable *table)
+{
+
+    for (int i = 0; i < MAXNETWORKAGREGATION; i++)
+    {
+        for (int j = 0; j < MAXROUTINGTABLEMOTESIZE; j++)
+        {
+            if (table->Motes[i][j] != nullptr && table->Motes[i][j]->MoteID == MoteID)
+            {
+                return table->Motes[i][j];
+            }
+        }
+    }
+
+    return nullptr;
+}
+
+LPGANNetwork *foundNetworkByID(short NetID, RoutingTable *table)
+{
+    for (int i = 0; i < MAXNETWORKAGREGATION; i++)
+    {
+        if (table->Networks[i] != nullptr && table->Networks[i]->ID == NetID)
+            return table->Networks[i];
+    }
+
+    return nullptr;
+}
+
+LPGANNetwork *foundNetworkByPrefix(byte Prefix, RoutingTable *table)
+{
+    for (int i = 0; i < MAXNETWORKAGREGATION; i++)
+    {
+        if (table->Networks[i] != nullptr && table->Networks[i]->NetworkPrefix == Prefix)
+            return table->Networks[i];
+    }
+
+    return nullptr;
+}
 
 /* MESSAGE TREATMENT*/
 
-boolean ParseACK(Message *m, int acks[2]){
+boolean ParseACK(Message *m, int acks[2])
+{
     acks[0] = (int)(m->AckRange[0]);
     acks[1] = (int)(m->AckRange[1]);
 
-    if((acks[0] < 0 || acks[1] < 0) || (acks[1] < acks[0])){
+    if ((acks[0] < 0 || acks[1] < 0) || (acks[1] < acks[0]))
+    {
         return false;
     }
 
     return true;
 }
 
-boolean ParseType(Message *m, MessageType *t){
-    switch(m->Type){
-        case 0:
-            *t = Standard;
-            return true;
-            break;
-        case 1:
-            *t = ACK;
-            return true;
-            break;
-        case 2:
-            *t = Inscription;
-            return true;
-            break;
-        case 3:
-            *t = GlobalDif;
-            return true;
-            break;
-        default:
-            return false;
+boolean ParseType(Message *m, MessageType *t)
+{
+    switch (m->Type)
+    {
+    case 0:
+        *t = Standard;
+        return true;
+        break;
+    case 1:
+        *t = ACK;
+        return true;
+        break;
+    case 2:
+        *t = Inscription;
+        return true;
+        break;
+    case 3:
+        *t = GlobalDif;
+        return true;
+        break;
+    default:
+        return false;
     }
 }

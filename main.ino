@@ -3,8 +3,8 @@
 
 
 #include <Sodaq_RN2483.h>
-#include "include/custom_lib/objects.h"
-#include "include/custom_lib/factory.h"
+#include "objects.h"
+#include "factory.h"
 
 
 
