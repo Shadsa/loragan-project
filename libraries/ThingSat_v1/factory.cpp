@@ -123,6 +123,37 @@ boolean DeleteGateway(Gateway *gw, LPGANNetwork *network, RoutingTable *table)
     return false;
 }
 
+boolean AddMote(Mote *m,LPGANNetwork *network, RoutingTable *table){
+    if (m == nullptr || table == nullptr)
+        return false;
+    int i = 0;
+    while (i < sizeof(table->Motes[network->ID]))
+    {
+        if (table->Motes[network->ID][i] == nullptr)
+        {
+            table->Motes[network->ID][i] = m;
+            return true;
+        }
+        i++;
+    }
+    return false;
+}
+boolean DeleteMote(Mote *m,LPGANNetwork *network, RoutingTable *table){
+if (m == nullptr || table == nullptr)
+        return false;
+    boolean found = false;
+    int i = 0;
+    while (i < sizeof(table->Motes[network->ID]) && !found)
+    {
+        if (table->Motes[network->ID][i] != nullptr && table->Motes[network->ID][i]->DevADDR == m->DevADDR)
+        {
+            table->Motes[network->ID][i] = nullptr;
+            return true;
+        }
+        i++;
+    }
+    return false;
+}
 
 /* MESSAGE TREATMENT*/
 
