@@ -138,7 +138,7 @@ void FlushSerialBufferIn()
 {
     while (Serial2.available() > 0)
     {
-        SerialUSB.println(Serial2.read());
+        Serial2.read();
     }
 }
 
