@@ -14,11 +14,11 @@ float PointToInt(byte point[2]);
 boolean IsInSightOf(Gateway *gw);
 Gateway *GetNextInsightGateway();
 
-/* Routing Table Management */                     
-boolean IsGatewayDropped(Gateway *gw);                  //Compute if the gateway have to be dropped
-short GetNetworkId(Gateway *gw);                          //return -1 if gw is null
-short GetNetworkId(byte DevADDR[4], RoutingTable *table); //return -1 if table null, -2 if not found
-boolean AddGateway(Gateway *gw, LPGANNetwork *network, RoutingTable *table);// Return false in case of nullptr or gateway not found, true if it found it and add it
+/* Routing Table Management */
+boolean IsGatewayDropped(Gateway *gw);                                          //Compute if the gateway have to be dropped
+short GetNetworkId(Gateway *gw);                                                //return -1 if gw is null
+short GetNetworkId(byte DevADDR[4], RoutingTable *table);                       //return -1 if table null, -2 if not found
+boolean AddGateway(Gateway *gw, LPGANNetwork *network, RoutingTable *table);    // Return false in case of nullptr or gateway not found, true if it found it and add it
 boolean DeleteGateway(Gateway *gw, LPGANNetwork *network, RoutingTable *table); // Return false in case of nullptr or gateway not found, true if it found it and delete it
 boolean AddMote(Mote m);
 boolean DeleteMote(Mote m);
@@ -43,12 +43,11 @@ boolean Flush(Message m, LPGANNetwork n);
 // TODO type : GetTime();
 // TODO type : SetTime();
 
-
 /* Others */
 boolean ApplyDiff(Diff d);
 
 /* Storage */
-boolean DeleteStorageMessage(Message m, Message *buffer[]);
-boolean AddStorageMessage(Message m, Message *buffer[]);
+boolean DeleteStorageMessage(Message *m, Message *buffer[]);
+boolean AddStorageMessage(Message *m, Message *buffer[]);
 
 #endif // FACTORY_H

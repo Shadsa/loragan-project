@@ -291,17 +291,27 @@ boolean ParseType(Message *m, MessageType *t)
         return false;
     }
 }
-boolean DeleteStorageMessage(Message *m, Message *buffer[]){
-    for(int i=0;i< sizeof(buffer);i++){
-        if(m->MessageID == buffer[i]->MessageID){
+boolean DeleteStorageMessage(Message *m, Message *buffer[])
+{
+    for (int i = 0; i < sizeof(buffer); i++)
+    {
+        if (m->MessageID == buffer[i]->MessageID)
+        {
             buffer[i] == nullptr;
             return true;
         }
     }
     return false;
 }
-boolean AddStorageMessage(Message *m, Message *buffer[]){
-    
+boolean AddStorageMessage(Message *m, Message *buffer[])
+{
+    for (int i = 0; i < sizeof(buffer); i++)
+    {
+        if (buffer[i]->MessageID == -1)
+        {
+            buffer[i] == m;
+            return true;
+        }
+    }
+    return false;
 }
-
-

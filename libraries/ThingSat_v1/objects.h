@@ -56,8 +56,8 @@ typedef struct Mote
 typedef struct Message
 {
     byte Type;        // 00 => message type on first 2 bits
-    byte MessageID[2]; // Never send in message, local storage utility only for buffering
-    long date; //Use for timeout storage management
+    short MessageID;  // Never send in message, local storage utility only for buffering. -1 if null
+    long date;        //Use for timeout storage management
     byte AckRange[2]; // byte 0 : low boundary - byte 1 : high boundary => Message ACK range (can ACK 64 message at best)
                       // Sat can only receive at best 30 msg in a minute, and a gateway will only ACK 50 message (paylaod size)
                       // so  it should be enough. For ACK only one message, range should be the same number repeated.
@@ -84,7 +84,7 @@ typedef struct Sat
 {
     GPSPoint Position;
     SatTimers Timers;
-    long MessageCounter =0;
+    long MessageCounter = 0;
 
     byte MaxGatewayPayloadSize = MAXGATEWAYPAYLOADSIZE;          //Max size for a payload destined to a gateway
     byte MaxDownlinkPayloadSize = MAXDOWNLINKPAYLOADSIZE;        //Max size for buffering Downlink Mote (used on Inscription message)
