@@ -73,8 +73,11 @@ typedef struct Message
 
 typedef struct Diff
 {
-    short DiffNumber;
+    short DiffNumber;   //Number used to identify and store different Diff.
+                        //We assume that 2 byte will be enough to ensure that two
+                        //diff will not have index collision in a short period of time.
     byte AddFlag;       //Number of Add instruction in the data buffer before Delete instruction
+    byte MessageNumber; //Number of message in the payload
     byte *DiffData[47]; /* instruction : For an Add statement :
                                         Gateway : [2] byte for GatewayID + [4] byte for a GPS point (Long and lat on 2 byte each)
                                         Network : exatcly the same structure as the LPGANNetwork structure define above
@@ -82,8 +85,7 @@ typedef struct Diff
                                         For Delete statement :
                                         Gateway : [2] byte for GatewayID
                                         Network : [2] byte for NetworkID
-
-*/
+                        */
 };
 
 //Define all timers for the Sat Algo
