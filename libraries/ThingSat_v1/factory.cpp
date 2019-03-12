@@ -54,10 +54,11 @@ boolean IsInSightOf(Gateway gw)
 {
     return false;
 }
-Gateway *GetNextInsightGateway()
+/*
+Gateway &GetNextInsightGateway()
 {
-    return nullptr;
-}
+    return {};
+}*/
 
 /*ROUTING TABLE MANAGEMENT*/
 boolean IsGatewayDropped(Gateway &gw)
@@ -111,7 +112,7 @@ boolean DeleteGateway(Gateway &gw, LPGANNetwork &network, RoutingTable &table)
     {
         if (table.Gateways[network.StorageID][i].GatewayID != -1 && table.Gateways[network.StorageID][i].GatewayID == gw.GatewayID)
         {
-            table.Gateways[network.StorageID][i].GatewayID = -1;
+            table.Gateways[network.StorageID][i]= {};
             return true;
         }
         i++;
@@ -142,7 +143,7 @@ boolean DeleteMote(Mote &m, LPGANNetwork &network, RoutingTable &table)
     {
         if (table.Motes[network.StorageID][i].MoteID != -1 && table.Motes[network.StorageID][i].DevADDR == m.DevADDR)
         {
-            table.Motes[network.StorageID][i].MoteID = -1;
+            table.Motes[network.StorageID][i]= {};
             return true;
         }
         i++;
@@ -152,9 +153,9 @@ boolean DeleteMote(Mote &m, LPGANNetwork &network, RoutingTable &table)
 
 //Getter, return nullptr if not found
 
-Gateway &foundGatewayByEUI(byte GatewayEUI[8], RoutingTable &table)
+Gateway &foundGatewayByEUI(byte GatewayEUI[8], RoutingTable &table, Gateway &temp)
 {
-    Gateway temp;
+    
     for (int i = 0; i < MAXNETWORKAGREGATION; i++)
     {
         for (int j = 0; j < MAXROUTINGTABLEGATEWAYSIZE; j++)
@@ -169,9 +170,9 @@ Gateway &foundGatewayByEUI(byte GatewayEUI[8], RoutingTable &table)
     return temp;
 }
 
-Gateway &foundGatewayByID(short GatewayID, RoutingTable &table)
+Gateway &foundGatewayByID(short GatewayID, RoutingTable &table, Gateway &temp)
 {
-    Gateway temp;
+    
     for (int i = 0; i < MAXNETWORKAGREGATION; i++)
     {
         for (int j = 0; j < MAXROUTINGTABLEGATEWAYSIZE; j++)
@@ -186,9 +187,9 @@ Gateway &foundGatewayByID(short GatewayID, RoutingTable &table)
     return temp;
 }
 
-Mote &foundMoteByDEVADDR(byte DEVADDR[4], RoutingTable &table)
+Mote &foundMoteByDEVADDR(byte DEVADDR[4], RoutingTable &table, Mote &temp)
 {
-    Mote temp;
+    
     for (int i = 0; i < MAXNETWORKAGREGATION; i++)
     {
         for (int j = 0; j < MAXROUTINGTABLEMOTESIZE; j++)
@@ -203,9 +204,9 @@ Mote &foundMoteByDEVADDR(byte DEVADDR[4], RoutingTable &table)
     return temp;
 }
 
-Mote &foundMoteByID(short MoteID, RoutingTable &table)
+Mote &foundMoteByID(short MoteID, RoutingTable &table,Mote &temp)
 {
-    Mote temp;
+   
     for (int i = 0; i < MAXNETWORKAGREGATION; i++)
     {
         for (int j = 0; j < MAXROUTINGTABLEMOTESIZE; j++)
@@ -220,9 +221,9 @@ Mote &foundMoteByID(short MoteID, RoutingTable &table)
     return temp;
 }
 
-LPGANNetwork &foundNetworkByID(short NetID, RoutingTable &table)
+LPGANNetwork &foundNetworkByID(short NetID, RoutingTable &table, LPGANNetwork &temp)
 {
-    LPGANNetwork temp;
+    
     for (int i = 0; i < MAXNETWORKAGREGATION; i++)
     {
         if (table.Networks[i].ID != -1 && table.Networks[i].ID == NetID)
@@ -232,9 +233,9 @@ LPGANNetwork &foundNetworkByID(short NetID, RoutingTable &table)
     return temp;
 }
 
-LPGANNetwork &foundNetworkByPrefix(byte Prefix, RoutingTable &table)
+LPGANNetwork &foundNetworkByPrefix(byte Prefix, RoutingTable &table, LPGANNetwork &temp)
 {
-    LPGANNetwork temp;
+    
     for (int i = 0; i < MAXNETWORKAGREGATION; i++)
     {
         if (table.Networks[i].ID != -1 && table.Networks[i].NetworkPrefix == Prefix)
