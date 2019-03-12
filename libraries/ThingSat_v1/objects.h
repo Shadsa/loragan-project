@@ -38,6 +38,7 @@ typedef struct GPSPoint
 typedef struct LPGANNetwork
 {
     short ID;
+    byte StorageID; //Used to remember the index of the struct in Network list
     byte NetworkPrefix; //We support only network wich have 1 byte of prefix for the moment
 };
 
@@ -114,7 +115,7 @@ typedef struct Sat
 typedef struct RoutingTable
 {
 
-    int *NetworksLocalDif[MAXNETWORKAGREGATION];                         //List of dif stage by Network
+    int NetworksLocalDif[MAXNETWORKAGREGATION];                         //List of dif stage by Network
     int GlobalDif;                                                       //Num of the GlobalDif (Autoritative server only)
     LPGANNetwork *Networks[MAXNETWORKAGREGATION];                        //List of Networks allowed and their ID
     Gateway *Gateways[MAXNETWORKAGREGATION][MAXROUTINGTABLEGATEWAYSIZE]; //List of allowed gateway by network

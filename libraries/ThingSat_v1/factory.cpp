@@ -96,11 +96,11 @@ boolean AddGateway(Gateway *gw, LPGANNetwork *network, RoutingTable *table)
     if (gw == nullptr || table == nullptr)
         return false;
     int i = 0;
-    while (i < sizeof(table->Gateways[network->ID]))
+    while (i < sizeof(table->Gateways[network->StorageID]))
     {
-        if (table->Gateways[network->ID][i] == nullptr)
+        if (table->Gateways[network->StorageID][i] == nullptr)
         {
-            table->Gateways[network->ID][i] = gw;
+            table->Gateways[network->StorageID][i] = gw;
             return true;
         }
         i++;
@@ -113,11 +113,11 @@ boolean DeleteGateway(Gateway *gw, LPGANNetwork *network, RoutingTable *table)
         return false;
     boolean found = false;
     int i = 0;
-    while (i < sizeof(table->Gateways[network->ID]) && !found)
+    while (i < sizeof(table->Gateways[network->StorageID]) && !found)
     {
-        if (table->Gateways[network->ID][i] != nullptr && table->Gateways[network->ID][i]->GatewayID == gw->GatewayID)
+        if (table->Gateways[network->StorageID][i] != nullptr && table->Gateways[network->StorageID][i]->GatewayID == gw->GatewayID)
         {
-            table->Gateways[network->ID][i] = nullptr;
+            table->Gateways[network->StorageID][i] = nullptr;
             return true;
         }
         i++;
@@ -130,11 +130,11 @@ boolean AddMote(Mote *m, LPGANNetwork *network, RoutingTable *table)
     if (m == nullptr || table == nullptr)
         return false;
     int i = 0;
-    while (i < sizeof(table->Motes[network->ID]))
+    while (i < sizeof(table->Motes[network->StorageID]))
     {
-        if (table->Motes[network->ID][i] == nullptr)
+        if (table->Motes[network->StorageID][i] == nullptr)
         {
-            table->Motes[network->ID][i] = m;
+            table->Motes[network->StorageID][i] = m;
             return true;
         }
         i++;
@@ -148,11 +148,11 @@ boolean DeleteMote(Mote *m, LPGANNetwork *network, RoutingTable *table)
         return false;
     boolean found = false;
     int i = 0;
-    while (i < sizeof(table->Motes[network->ID]) && !found)
+    while (i < sizeof(table->Motes[network->StorageID]) && !found)
     {
-        if (table->Motes[network->ID][i] != nullptr && table->Motes[network->ID][i]->DevADDR == m->DevADDR)
+        if (table->Motes[network->StorageID][i] != nullptr && table->Motes[network->StorageID][i]->DevADDR == m->DevADDR)
         {
-            table->Motes[network->ID][i] = nullptr;
+            table->Motes[network->StorageID][i] = nullptr;
             return true;
         }
         i++;
@@ -303,7 +303,7 @@ boolean DeleteStorageMessage(Message *m, Message *buffer[])
     }
     return false;
 }
-boolean AddStorageMessage(Message *m, Message *buffer[][])
+boolean AddStorageMessage(Message *m, Message *buffer[])
 {
     for (int i = 0; i < sizeof(buffer); i++)
     {
@@ -314,4 +314,13 @@ boolean AddStorageMessage(Message *m, Message *buffer[][])
         }
     }
     return false;
+}
+
+/* DIFF FUNCTIONS */
+boolean ApplyDiff(Diff *d,LPGANNetwork *Network, RoutingTable *table){
+    /*Check Diff number*/
+    if(d == nullptr || table == nullptr || d->DiffNumber <= table->NetworksLocalDif[Network->StorageID])
+        return false;
+
+    return true;
 }

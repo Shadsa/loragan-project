@@ -43,11 +43,13 @@ boolean Flush(Message m, LPGANNetwork n);
 // TODO type : GetTime();
 // TODO type : SetTime();
 
-/* Others */
-boolean ApplyDiff(Diff d);
+
 
 /* Storage */
 boolean DeleteStorageMessage(Message *m, Message *buffer[]);
 boolean AddStorageMessage(Message *m, Message *buffer[]);
+
+/* DIFF FUNCTIONS  */
+boolean ApplyDiff(Diff *d, RoutingTable *table);
 
 #endif // FACTORY_H
