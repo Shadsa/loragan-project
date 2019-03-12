@@ -19,12 +19,12 @@ enum MessageType
     Standard,    // 00
     ACK,         // 01
     Inscription, // 10
-    GlobalDif,    // 11
+    GlobalDif,   // 11
 
     /* Message from Sat */
     SatSync, //Mote syncronous message
-    SatACK //Gateway ACK on diff receive
-};               //To check, not really friendly user
+    SatACK   //Gateway ACK on diff receive
+};           //To check, not really friendly user
 
 //Define all structure for easier manipulation
 
@@ -60,21 +60,30 @@ typedef struct Mote
 
 typedef struct Message
 {
-    byte Type;        // 00 => message type on first 2 bits
-    short MessageID;  // Never send in message, local storage utility only for buffering. -1 if null
-    long date;        //Use for timeout storage management
-    byte AckRange[2]; // byte 0 : low boundary - byte 1 : high boundary => Message ACK range (can ACK 64 message at best)
-                      // Sat can only receive at best 30 msg in a minute, and a gateway will only ACK 50 message (paylaod size)
-                      // so  it should be enough. For ACK only one message, range should be the same number repeated.
-                      // In case of no ACK, leave it null (fill with 0)
-    byte Payload[50]; //Decode depending the message type.
+    byte Type;             // 00 => message type on first 2 bits
+    short MessageID;       // Never send in message, local storage utility only for buffering. -1 if null
+    long date;             //Use for timeout storage management
+    LPGANNetwork *Network; //Network targeted
+    byte AckRange[2];      // byte 0 : low boundary - byte 1 : high boundary => Message ACK range (can ACK 64 message at best)
+                           // Sat can only receive at best 30 msg in a minute, and a gateway will only ACK 50 message (paylaod size)
+                           // so  it should be enough. For ACK only one message, range should be the same number repeated.
+                           // In case of no ACK, leave it null (fill with 0)
+    byte Payload[50];      //Decode depending the message type.
 };
 
 typedef struct Diff
 {
     short DiffNumber;
-    byte AddFlag;
-    byte *DiffData[47];
+    byte AddFlag;       //Number of Add instruction in the data buffer before Delete instruction
+    byte *DiffData[47]; /* instruction : For an Add statement :
+                                        Gateway : [2] byte for GatewayID + [4] byte for a GPS point (Long and lat on 2 byte each)
+                                        Network : exatcly the same structure as the LPGANNetwork structure define above
+
+                                        For Delete statement :
+                                        Gateway : [2] byte for GatewayID
+                                        Network : [2] byte for NetworkID
+
+*/
 };
 
 //Define all timers for the Sat Algo

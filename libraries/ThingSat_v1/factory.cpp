@@ -303,7 +303,7 @@ boolean DeleteStorageMessage(Message *m, Message *buffer[])
     }
     return false;
 }
-boolean AddStorageMessage(Message *m, Message *buffer[])
+boolean AddStorageMessage(Message *m, Message *buffer[][])
 {
     for (int i = 0; i < sizeof(buffer); i++)
     {
