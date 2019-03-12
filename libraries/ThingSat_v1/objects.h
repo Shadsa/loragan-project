@@ -15,10 +15,15 @@ const int MAXNETWORKAGREGATION = 5;
 //enum ObjectType {Mote, Gateway, Station};
 enum MessageType
 {
+    /* Message from Ground*/
     Standard,    // 00
     ACK,         // 01
     Inscription, // 10
-    GlobalDif    // 11
+    GlobalDif,    // 11
+
+    /* Message from Sat */
+    SatSync, //Mote syncronous message
+    SatACK //Gateway ACK on diff receive
 };               //To check, not really friendly user
 
 //Define all structure for easier manipulation
