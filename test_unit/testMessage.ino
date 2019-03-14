@@ -115,7 +115,7 @@ void setup()
     MessageType t6;
     Message m6;
 
-    m6.Type = 5;
+    m6.Type = 6;
     bool r6 = ParseType(&m6, &t6);
     SerialUSB.println(r6); // 0
     SerialUSB.println(t6); // undef
@@ -128,6 +128,13 @@ void setup()
     SerialUSB.println(r7); // 1
     SerialUSB.println(t7); // 3
 
+    MessageType t8;
+    Message m8;
+
+    m8.Type = 5;
+    bool r8 = ParseType(&m8, &t8);
+    SerialUSB.println(r8); // 1
+    SerialUSB.println(t8); // 5
 
     SerialUSB.println("Bye");
     

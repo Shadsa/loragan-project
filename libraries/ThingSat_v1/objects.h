@@ -16,14 +16,14 @@ const int MAXNETWORKAGREGATION = 5;
 enum MessageType
 {
     /* Message from Ground*/
-    Standard,    // 00
-    ACK,         // 01
-    Inscription, // 10
-    GlobalDif,    // 11
+    Standard,    // 000
+    ACK,         // 001
+    Inscription, // 010
+    GlobalDif,    // 011
 
     /* Message from Sat */
-    SatSync, //Mote syncronous message
-    SatACK //Gateway ACK on diff receive
+    SatSync, // 100 Mote syncronous message
+    SatACK // 101 Gateway ACK on diff receive
 };               //To check, not really friendly user
 
 //Define all structure for easier manipulation
