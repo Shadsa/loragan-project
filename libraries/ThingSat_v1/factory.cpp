@@ -29,8 +29,6 @@ void IntToPoint(byte point[2], float value)
 
 float PointToInt(byte point[2])
 {
-    SerialUSB.println();
-
     bool sign = bitRead(*point, 0);
 
     byte i = *point >> 1;
