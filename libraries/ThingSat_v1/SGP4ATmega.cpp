@@ -831,3 +831,11 @@ void SGP4ATmega::calc(SGP4ATmega::tle_t t, SGP4ATmega::geodetic_t *geo){
 	geo->lat = Degrees(geo->lat);
 	geo->lon = Degrees(geo->lon);
 }
+
+float SGP4ATmega::toRegularLong(float lon){
+    if(lon > 180){
+        return lon - 360;
+    } else {
+        return lon;
+    }
+}

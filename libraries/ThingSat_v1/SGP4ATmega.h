@@ -86,8 +86,6 @@ class SGP4ATmega {
         float FMod2p(float x);
         //void SGP4(float tsince, SGP4ATmega::tle_t * tle, SGP4ATmega::vector_t * pos, SGP4ATmega::vector_t * vel);
         void setTime(long sec);
-		    void calc(SGP4ATmega::tle_t, SGP4ATmega::geodetic_t *geo);
-
-
-
+	    void calc(SGP4ATmega::tle_t, SGP4ATmega::geodetic_t *geo);
+        float toRegularLong(float lon);
 };

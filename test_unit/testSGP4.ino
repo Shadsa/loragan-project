@@ -52,7 +52,10 @@ void setup()
     SerialUSB.print((*latlon).lat);
     SerialUSB.print(",");
     SerialUSB.print((*latlon).lon);
- 
+
+    SerialUSB.println("=======");
+
+    SerialUSB.println(predict.toRegularLong((*latlon).lon));
 
 }
 
