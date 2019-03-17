@@ -51,7 +51,7 @@ void setup()
     predict.calc(predict.elements, latlon);
     SerialUSB.print((*latlon).lat);
     SerialUSB.print(",");
-    SerialUSB.print((*latlon).lon);
+    SerialUSB.println((*latlon).lon);
 
     SerialUSB.println("=======");
 
