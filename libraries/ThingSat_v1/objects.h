@@ -4,6 +4,54 @@
 #include <stdint.h>
 #include <Stream.h>
 
+class SGP4ATmega {
+    public:
+
+        typedef struct {
+            int epoch_year;//ye, then time
+            float epoch_day,
+                  xndt2o,//ndot/2 drag parameter
+                  xndd6o,//n float dot/6 Drag Parameter
+                  bstar, //bstar drag parameter
+                  xincl,//inclination IN
+                  xnodeo, //RA
+                  eo,//eccentricity EC
+                  omegao, //WP
+                  xmo,//mean anomaly MA
+                  xno;//mean motion MM
+            int	   catnr, //Sat cat number
+                   elset, // element set number
+                   revnum;//reveloution Number at Epoch
+            char	   sat_name[25], idesg[9];//international Designation
+        }tle_t;
+        
+        SGP4ATmega::tle_t co57; 
+
+        /* Geodetic position structure used by SGP4/SDP4 code. */
+
+        typedef struct	{
+            float lat, lon, alt, theta;
+        }  geodetic_t;
+        /* General three-dimensional vector structure used by SGP4/SDP4 code. */
+
+        typedef struct	{
+            float x, y, z, w;
+        }  vector_t;
+
+        float LAT,LON;
+        SGP4ATmega::tle_t elements;
+
+        void setElements(SGP4ATmega::tle_t);
+        int isFlagClear(int flag);
+        void SetFlag(int flag);
+        void ClearFlag(int flag);
+        float FMod2p(float x);
+        //void SGP4(float tsince, SGP4ATmega::tle_t * tle, SGP4ATmega::vector_t * pos, SGP4ATmega::vector_t * vel);
+        void setTime(long sec);
+	    void calc(SGP4ATmega::tle_t, SGP4ATmega::geodetic_t *geo);
+        float toRegularLong(float lon);
+};
+
 /* CONSTANT AND PARAMETER */
 const int MAXGATEWAYPAYLOADSIZE = 50;      //Max size for a payload destined to a gateway
 const int MAXDOWNLINKPAYLOADSIZE = 50;     //Max size for buffering Downlink Mote (used on Inscription message)
@@ -96,6 +144,22 @@ typedef struct SatTimers
     byte ListenTime = 1;     //Listening time in minute for the case of global packet ACK
     byte MessageTimeout = 1; //Time in day when a message will expire if not delivered
 };
+
+SGP4ATmega::tle_t CurrentTLE = {10,
+    144.03510745,//ye, then time
+    .00000045,//ndot/2 drag parameter
+    00000.0,//n float dot/6 Drag Parameter
+    0.000042, //bstar drag parameter
+    98.7132,//inclination IN
+    152.4464, //RA
+    .000873,//eccentricity EC
+    245.714100, //WP
+    114.3119,//mean anomaly MA
+    14.20500354,//mean motion MM
+    3031, //Sat cat number
+    8022, // element set number
+    35761,//revolution Number at Epoch
+    "CO-57", "03031J"};
 
 //Store Sat configuration
 typedef struct Sat

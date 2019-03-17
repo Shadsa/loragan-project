@@ -59,12 +59,12 @@ Gateway &GetNextInsightGateway()
 }*/
 
 // computes satellite position at a certain time (tsince : time since epoch)
-/*GPSPoint ComputeSatPositionAtTime(long tsince){
+GPSPoint ComputeSatPositionAtTime(long tsince){
     SGP4ATmega predict;
     SGP4ATmega::geodetic_t *latlon, zero= {0,0,0,0};
 
-    if(Sat.currentTle !== null){
-        predict.setElements(Sat.currentTle);
+
+        predict.setElements(CurrentTLE);
 
         predict.setTime(tsince);
     
@@ -76,29 +76,8 @@ Gateway &GetNextInsightGateway()
         IntToPoint(point.Longitude, predict.toRegularLong((*latlon).lon));
 
         return point;
-        
-    } else {
-        return null;
-    }
-}*/
 
-/*void SetTLE(){
-    Sat.currentTle = {10,
-    144.03510745,//ye, then time
-    .00000045,//ndot/2 drag parameter
-    00000.0,//n float dot/6 Drag Parameter
-    0.000042, //bstar drag parameter
-    98.7132,//inclination IN
-    152.4464, //RA
-    .000873,//eccentricity EC
-    245.714100, //WP
-    114.3119,//mean anomaly MA
-    14.20500354,//mean motion MM
-    3031, //Sat cat number
-    8022, // element set number
-    35761,//revolution Number at Epoch
-    "CO-57", "03031J"};
-}*/
+}
 
 /*ROUTING TABLE MANAGEMENT*/
 boolean IsGatewayDropped(Gateway &gw)

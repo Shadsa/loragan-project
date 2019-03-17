@@ -32,53 +32,6 @@
 #define deg2rad		1.745329251994330E-2	/* Degrees to radians */
 #define DEEP_SPACE_EPHEM_FLAG  0x000040
 
-class SGP4ATmega {
-    public:
-
-        typedef struct {
-            int epoch_year;//ye, then time
-            float epoch_day,
-                  xndt2o,//ndot/2 drag parameter
-                  xndd6o,//n float dot/6 Drag Parameter
-                  bstar, //bstar drag parameter
-                  xincl,//inclination IN
-                  xnodeo, //RA
-                  eo,//eccentricity EC
-                  omegao, //WP
-                  xmo,//mean anomaly MA
-                  xno;//mean motion MM
-            int	   catnr, //Sat cat number
-                   elset, // element set number
-                   revnum;//reveloution Number at Epoch
-            char	   sat_name[25], idesg[9];//international Designation
-        }tle_t;
-        
-        SGP4ATmega::tle_t co57; 
-
-        /* Geodetic position structure used by SGP4/SDP4 code. */
-
-        typedef struct	{
-            float lat, lon, alt, theta;
-        }  geodetic_t;
-        /* General three-dimensional vector structure used by SGP4/SDP4 code. */
-
-        typedef struct	{
-            float x, y, z, w;
-        }  vector_t;
-
-        float LAT,LON;
-        SGP4ATmega::tle_t elements;
-
-        void setElements(SGP4ATmega::tle_t);
-        int isFlagClear(int flag);
-        void SetFlag(int flag);
-        void ClearFlag(int flag);
-        float FMod2p(float x);
-        //void SGP4(float tsince, SGP4ATmega::tle_t * tle, SGP4ATmega::vector_t * pos, SGP4ATmega::vector_t * vel);
-        void setTime(long sec);
-	    void calc(SGP4ATmega::tle_t, SGP4ATmega::geodetic_t *geo);
-        float toRegularLong(float lon);
-};
 
 /* GPSPoint Manipulation*/
 void IntToPoint(byte point[2], float value);

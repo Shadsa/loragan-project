@@ -62,15 +62,13 @@ void setup()
 
     debugSerial.println("Hello");
 
-    SetTLE();
-
     long time = 1552809087;
 
     GPSPoint pt1 = ComputeSatPositionAtTime(time);
-    printGPSPoint(pt1); // expected 
+    printGPSPoint(pt1); // expected -57.11,-40.38
 
     GPSPoint pt2 = ComputeSatPositionAtTime(time + 100);
-    printGPSPoint(pt2); // expected 
+    printGPSPoint(pt2); // expected -62.21,-43.97
 
     //populateSatCoordinates();
     //populateGWCoordinates();
