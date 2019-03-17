@@ -145,6 +145,7 @@ typedef struct SatTimers
     byte MessageTimeout = 1; //Time in day when a message will expire if not delivered
 };
 
+// to move in Sat struc, make the last singleton
 SGP4ATmega::tle_t CurrentTLE = {10,
     144.03510745,//ye, then time
     .00000045,//ndot/2 drag parameter
@@ -168,6 +169,9 @@ typedef struct Sat
     SatTimers Timers;
     long MessageCounter = 0;
 
+    long clock;
+    int CONE_RADIUS = 100;
+
     byte MaxGatewayPayloadSize = MAXGATEWAYPAYLOADSIZE;          //Max size for a payload destined to a gateway
     byte MaxDownlinkPayloadSize = MAXDOWNLINKPAYLOADSIZE;        //Max size for buffering Downlink Mote (used on Inscription message)
     int MaxRoutingTableGatewaySize = MAXROUTINGTABLEGATEWAYSIZE; //Number of maximum gateway stored for each network.
@@ -176,6 +180,9 @@ typedef struct Sat
                                                                 *Important because it multiply every value in term of memory size. 
                                                                 *Add network only if you are sure that you have enough memory.*/
 };
+
+// instanciates the satellite
+Sat sat;
 
 typedef struct RoutingTable
 {

@@ -47,13 +47,52 @@ float PointToInt(byte point[2])
 }
 
 /* GPS FUNCTION */
+/* check if gateway is in sight or will be in sight using Haversine formula */
+/* target is gw */
+boolean IsWithinRadius(float sat_lat, float sat_lon, float target_lat, float target_lon, int sat_radius){
+    //debugSerial.println("=========== INPUT =============");
+    //debugSerial.println(sat_lat);
+    //debugSerial.println(sat_lon);
+    //debugSerial.println(target_lat);
+    //debugSerial.println(target_lon);
+    //debugSerial.println("========================");
+    int R = 6371; // Radius of the earth in km
+    float toRad = (M_PI/180);
 
-boolean IsInSightOf(Gateway gw)
-{
+    // using rad instead of degrees
+    float dLat = (target_lat - sat_lat) * toRad; 
+    float dLon = (target_lon - sat_lon) * toRad; 
+    float a = sinf(dLat/2) * sinf(dLat/2) + cosf(sat_lat * toRad) * cosf(target_lat * toRad) * sinf(dLon/2) * sinf(dLon/2);
+
+    float c = 2 * atan2f(sqrtf(a), sqrtf(1-a)); 
+    float d = R * c; // Distance in km
+    
+    if(d < sat_radius){
+        return true;
+    }
+
     return false;
 }
+
+boolean IsInSightOf(Gateway &gw)
+{
+    // get sat current pos
+    GPSPoint pSat = ComputeSatPositionAtTime(GetTime());
+    // computes
+
+    /*SerialUSB.println("======== IsInSightOf DEBUG ==========");
+    SerialUSB.print(PointToInt(pSat.Latitude));
+    SerialUSB.print(" , ");
+    SerialUSB.println(PointToInt(pSat.Longitude));*/
+
+    /*SerialUSB.print(PointToInt(gw.Position.Latitude));
+    SerialUSB.print(" , ");
+    SerialUSB.println(PointToInt(gw.Position.Longitude));*/
+
+    return IsWithinRadius(PointToInt(pSat.Latitude), PointToInt(pSat.Longitude), PointToInt(gw.Position.Latitude), PointToInt(gw.Position.Longitude), sat.CONE_RADIUS);
+}
 /*
-Gateway &GetNextInsightGateway()
+Gateway &GetNextInsightGateway(long timeOffset)
 {
     return {};
 }*/
@@ -62,7 +101,6 @@ Gateway &GetNextInsightGateway()
 GPSPoint ComputeSatPositionAtTime(long tsince){
     SGP4ATmega predict;
     SGP4ATmega::geodetic_t *latlon, zero= {0,0,0,0};
-
 
         predict.setElements(CurrentTLE);
 
@@ -76,7 +114,6 @@ GPSPoint ComputeSatPositionAtTime(long tsince){
         IntToPoint(point.Longitude, predict.toRegularLong((*latlon).lon));
 
         return point;
-
 }
 
 /*ROUTING TABLE MANAGEMENT*/
@@ -337,6 +374,19 @@ boolean ApplyDiff(Diff &d,LPGANNetwork &Network, RoutingTable &table){
 
     return true;
 }
+
+// it's mocking time
+long GetTime(){
+    return sat.clock;
+}
+
+void SetTime(long t){
+    sat.clock = t;
+}
+
+
+
+/* =================== SGP4 things =========================*/
 
 #ifdef DEBUG
 #define DEBUG_PRINTLN(x)    SerialUSB.println (x)

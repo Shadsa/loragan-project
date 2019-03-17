@@ -67,8 +67,8 @@ boolean ParsePayload(Message m);
 boolean Flush(Message m, LPGANNetwork n);
 
 /* Time things */
-// TODO type : GetTime();
-// TODO type : SetTime();
+long GetTime();
+void SetTime(long t);
 
 
 
