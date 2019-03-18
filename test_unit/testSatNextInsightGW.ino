@@ -61,40 +61,32 @@ void setup()
     populateGWCoordinates();
     debugSerial.println("=> GWs populated");
 
+    RoutingTable *table;
+
+    Gateway gw1;
+    gw1.GatewayID = 1;
+    AddGateway(&gw1, gw1.Network, table);
+
     GPSPoint pt1 = ComputeSatPositionAtTime(GetTime());
     printGPSPoint(pt1); // expected -57.11,-40.38
 
-    debugSerial.print("Checking gw in sight for now : ");
-    Gateway *isgw1 = GetNextInsightGateway(0, );
+    debugSerial.print("Checking gw in sight for now (1552809087) : ");
+    Gateway *isgw1 = GetNextInsightGateway(0, table);
 
 
-    debugSerial.print("Checking gw in sight for 100 seconds later : ");
-    Gateway *isgw2 = GetNextInsightGateway(100, )
+    debugSerial.print("Checking gw in sight for 100 seconds later (1552809187) : ");
+    Gateway *isgw2 = GetNextInsightGateway(100, table)
 
-
-    debugSerial.print("Time t=1, delivering GW 2 (yes) : ");
-    bool b2 = IsInSightOf(gw2);
-    debugSerial.println(b2);
-
-    debugSerial.print("Time t=1, delivering GW 3 (no) : ");
-    bool b3 = IsInSightOf(gw3);
-    debugSerial.println(b3);
-
-    SetTime(1552809187);
-    SerialUSB.print("Time is now (1552809187) : ");
-    SerialUSB.println(GetTime());
-
-    debugSerial.print("Time t=2, delivering to GW 1 (no) : ");
-    bool b4 = IsInSightOf(gw1);
-    debugSerial.println(b4);
-
-    debugSerial.print("Time t=2, delivering to GW 2 (no) : ");
-    bool b5 = IsInSightOf(gw2);
-    debugSerial.println(b5);
-    
-    debugSerial.print("Time t=2, delivering to GW 3 (yes) : ");
-    bool b6 = IsInSightOf(gw3);
-    debugSerial.println(b6);
+    for(int i = 0; i < MAXNETWORKAGREGATION * MAXROUTINGTABLEGATEWAYSIZE; i++){
+        if(*(isgw2+i).GatewayID != -1){
+            SerialUSB.print("Found GW ");
+            SerialUSB.print(*(isgw2+i).GatewayID);
+            SerialUSB.print(" ");
+            SerialUSB.print(PointToInt(*(isgw2+i).Position.Latitude));
+            SerialUSB.print(" , ");
+            SerialUSB.print(PointToInt(*(isgw2+i).Position.Longitude));
+        }
+    }
     
 
     debugSerial.println("Bye");
