@@ -39,7 +39,7 @@ float PointToInt(byte point[2]);
 
 /*GPS Function*/
 boolean IsInSightOf(Gateway &gw);
-Gateway &GetNextInsightGateway();
+Gateway *GetNextInsightGateway(long timeOffset, RoutingTable &table);
 
 /* Routing Table Management */
 boolean IsGatewayDropped(Gateway &gw);                                          //Compute if the gateway have to be dropped

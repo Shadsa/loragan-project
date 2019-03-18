@@ -91,11 +91,32 @@ boolean IsInSightOf(Gateway &gw)
 
     return IsWithinRadius(PointToInt(pSat.Latitude), PointToInt(pSat.Longitude), PointToInt(gw.Position.Latitude), PointToInt(gw.Position.Longitude), sat.CONE_RADIUS);
 }
-/*
-Gateway &GetNextInsightGateway(long timeOffset)
+
+Gateway *GetNextInsightGateway(long timeOffset, RoutingTable &table)
 {
-    return {};
-}*/
+    GPSPoint pSat = ComputeSatPositionAtTime(GetTime() + timeOffset);
+    float pSatLat = PointToInt(pSat.Latitude);
+    float pSatLon = PointToInt(pSat.Longitude);
+
+    // to check ! and to optimize !
+    Gateway* gws = new Gateway[MAXROUTINGTABLEGATEWAYSIZE * MAXNETWORKAGREGATION];
+
+    int fi = 0;
+
+    for(int i = 0; i < MAXNETWORKAGREGATION; i++){
+        for(int j = 0; j < MAXROUTINGTABLEGATEWAYSIZE; j++){
+            if (table.Gateways[i][j].GatewayID != -1)
+            {
+                if(IsWithinRadius(pSatLat, pSatLon, PointToInt(table.Gateways[i][j].Position.Latitude), PointToInt(table.Gateways[i][j].Position.Latitude), sat.CONE_RADIUS)){
+                    gws[fi] = table.Gateways[i][j];
+                    fi++;
+                }
+            }
+        }
+    }
+
+    return gws;
+}
 
 // computes satellite position at a certain time (tsince : time since epoch)
 GPSPoint ComputeSatPositionAtTime(long tsince){
