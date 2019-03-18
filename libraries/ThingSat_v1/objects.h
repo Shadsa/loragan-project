@@ -3,6 +3,8 @@
 #include <Arduino.h>
 #include <stdint.h>
 #include <Stream.h>
+#include "spg4.h"
+
 
 /* CONSTANT AND PARAMETER */
 const int MAXGATEWAYPAYLOADSIZE = 50;      //Max size for a payload destined to a gateway
@@ -34,6 +36,22 @@ typedef struct GPSPoint
     byte Latitude[2] = {0, 0};  //precision around the kilometer.
                                 //store alt and long in the format 000.00
 };
+
+SGP4ATmega::tle_t CurrentTLE = {10,
+                                144.03510745, //ye, then time
+                                .00000045,    //ndot/2 drag parameter
+                                00000.0,      //n float dot/6 Drag Parameter
+                                0.000042,     //bstar drag parameter
+                                98.7132,      //inclination IN
+                                152.4464,     //RA
+                                .000873,      //eccentricity EC
+                                245.714100,   //WP
+                                114.3119,     //mean anomaly MA
+                                14.20500354,  //mean motion MM
+                                3031,         //Sat cat number
+                                8022,         // element set number
+                                35761,        //revolution Number at Epoch
+                                "CO-57", "03031J"};
 
 typedef struct LPGANNetwork
 {
@@ -103,6 +121,9 @@ typedef struct Sat
     GPSPoint Position;
     SatTimers Timers;
     long MessageCounter = 0;
+
+    long clock;
+    int CONE_RADIUS = 100;
 
     byte MaxGatewayPayloadSize = MAXGATEWAYPAYLOADSIZE;          //Max size for a payload destined to a gateway
     byte MaxDownlinkPayloadSize = MAXDOWNLINKPAYLOADSIZE;        //Max size for buffering Downlink Mote (used on Inscription message)

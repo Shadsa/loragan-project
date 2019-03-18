@@ -1,10 +1,9 @@
 #ifndef FACTORY_H
 #define FACTORY_H
-
 #include <Arduino.h>
-#include <stdint.h>
-#include <Stream.h>
 #include "objects.h"
+#include "spg4.h"
+
 
 /* GPSPoint Manipulation*/
 void IntToPoint(byte point[2], float value);
@@ -12,7 +11,7 @@ float PointToInt(byte point[2]);
 
 /*GPS Function*/
 boolean IsInSightOf(Gateway &gw);
-Gateway &GetNextInsightGateway();
+Gateway *GetNextInsightGateway(long timeOffset, RoutingTable &table);
 
 /* Routing Table Management */
 boolean IsGatewayDropped(Gateway &gw);                                          //Compute if the gateway have to be dropped
@@ -40,8 +39,8 @@ boolean ParsePayload(Message m);
 boolean Flush(Message m, LPGANNetwork n);
 
 /* Time things */
-// TODO type : GetTime();
-// TODO type : SetTime();
+long GetTime();
+void SetTime(long t);
 
 
 
