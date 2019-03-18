@@ -281,11 +281,11 @@ boolean ParseType(Message &m, MessageType &t)
         return true;
         break;
     case 4:
-        *t = SatSync;
+        t = SatSync;
         return true;
         break;
     case 5:
-        *t = SatACK;
+        t = SatACK;
         return true;
         break;    
     default:
