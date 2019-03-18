@@ -280,6 +280,14 @@ boolean ParseType(Message &m, MessageType &t)
         t = GlobalDif;
         return true;
         break;
+    case 4:
+        *t = SatSync;
+        return true;
+        break;
+    case 5:
+        *t = SatACK;
+        return true;
+        break;    
     default:
         return false;
     }
