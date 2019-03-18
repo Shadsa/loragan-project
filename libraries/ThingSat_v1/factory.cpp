@@ -75,7 +75,7 @@ boolean IsWithinRadius(float sat_lat, float sat_lon, float target_lat, float tar
     return false;
 }
 
-boolean IsInSightOf(Gateway &gw)
+boolean IsInSightOf(Sat &sat,Gateway &gw)
 {
     // get sat current pos
     GPSPoint pSat = ComputeSatPositionAtTime(GetTime());
@@ -93,7 +93,7 @@ boolean IsInSightOf(Gateway &gw)
     return IsWithinRadius(PointToInt(pSat.Latitude), PointToInt(pSat.Longitude), PointToInt(gw.Position.Latitude), PointToInt(gw.Position.Longitude), sat.CONE_RADIUS);
 }
 
-Gateway *GetNextInsightGateway(long timeOffset, RoutingTable &table)
+Gateway *GetNextInsightGateway(Sat &sat,long timeOffset, RoutingTable &table)
 {
     GPSPoint pSat = ComputeSatPositionAtTime(GetTime() + timeOffset);
     float pSatLat = PointToInt(pSat.Latitude);
@@ -398,10 +398,10 @@ boolean ApplyDiff(Diff &d,LPGANNetwork &Network, RoutingTable &table){
 }
 
 // it's mocking time
-long GetTime(){
+long GetTime(Sat &sat){
     return sat.clock;
 }
 
-void SetTime(long t){
+void SetTime(Sat &sat,long t){
     sat.clock = t;
 }

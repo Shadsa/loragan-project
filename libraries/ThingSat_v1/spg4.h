@@ -6,6 +6,55 @@
 #include <math.h>
 #include <stdio.h>
 
+/* =================== SGP4 Class =========================*/
+
+class SGP4ATmega {
+    public:
+
+        typedef struct {
+            int epoch_year;//ye, then time
+            float epoch_day,
+                  xndt2o,//ndot/2 drag parameter
+                  xndd6o,//n float dot/6 Drag Parameter
+                  bstar, //bstar drag parameter
+                  xincl,//inclination IN
+                  xnodeo, //RA
+                  eo,//eccentricity EC
+                  omegao, //WP
+                  xmo,//mean anomaly MA
+                  xno;//mean motion MM
+            int	   catnr, //Sat cat number
+                   elset, // element set number
+                   revnum;//reveloution Number at Epoch
+            char	   sat_name[25], idesg[9];//international Designation
+        }tle_t;
+
+        /* Geodetic position structure used by SGP4/SDP4 code. */
+
+        typedef struct	{
+            float lat, lon, alt, theta;
+        }  geodetic_t;
+        /* General three-dimensional vector structure used by SGP4/SDP4 code. */
+
+        typedef struct	{
+            float x, y, z, w;
+        }  vector_t;
+
+        float LAT,LON;
+        SGP4ATmega::tle_t elements;
+
+        void setElements(SGP4ATmega::tle_t);
+        int isFlagClear(int flag);
+        void SetFlag(int flag);
+        void ClearFlag(int flag);
+        float FMod2p(float x);
+        //void SGP4(float tsince, SGP4ATmega::tle_t * tle, SGP4ATmega::vector_t * pos, SGP4ATmega::vector_t * vel);
+        void setTime(long sec);
+	    void calc(SGP4ATmega::tle_t, SGP4ATmega::geodetic_t *geo);
+        float toRegularLong(float lon);
+};
+
+
 
 #define xke		7.43669161E-2
 #define tothrd		6.6666666666666666E-1	/* 2/3 */
@@ -14,7 +63,7 @@
 #define xkmper		6.378137E3		/* WGS 84 Earth radius km */
 #define SIMPLE_FLAG            0x000020
 #define twopi		6.28318530717958623	/* 2*Pi  */
-#define s		1.012229
+#define sgp4S		1.012229
 #define qoms2t		1.880279E-09
 #define xj3		-2.53881E-6		/* J3 Harmonic (WGS '72) */   
 #define ck4		6.209887E-7

@@ -2,61 +2,62 @@
 #include <math.h>
 #include "Arduino.h"
 
+
+
 /* =================== SGP4 things =========================*/
 
 #ifdef DEBUG
-#define DEBUG_PRINTLN(x)    SerialUSB.println (x)
-#define DEBUG_PRINT(x)      SerialUSB.print(x)
-#define DEBUG_PRINTDEC(x)   SerialUSB.println(x, DEC)
+#define DEBUG_PRINTLN(x) SerialUSB.println(x)
+#define DEBUG_PRINT(x) SerialUSB.print(x)
+#define DEBUG_PRINTDEC(x) SerialUSB.println(x, DEC)
 #else
 #define DEBUG_PRINT(x)
 #define DEBUG_PRINTLN(x)
 #define DEBUG_PRINTDEC(x)
 #endif
-int static Flags=0;
-float static phase; 
+int static Flags = 0;
+float static phase;
 float usecs, tsince;
 long seconds;
 uint64_t daynum, jul_utc, jul_epoch;
 
+/*
+SGP4ATmega::tle_t co57 = {10,
+                          144.03510745,       //ye, then time
+                          .00000045,          //ndot/2 drag parameter
+                          00000.0,            //n float dot/6 Drag Parameter
+                          0.000042,           //bstar drag parameter
+                          98.7132,            //inclination IN
+                          152.4464,           //RA
+                          .000873,            //eccentricity EC
+                          245.714100,         //WP
+                          114.3119,           //mean anomaly MA
+                          14.20500354,        //mean motion MM
+                          3031,               //Sat cat number
+                          8022,               // element set number
+                          35761,              //reveloution Number at Epoch
+                          "CO-57", "03031J"}; //international Designation*/
 
 
-
-//SGP4ATmega::tle_t co57 = {10,
-//    144.03510745,//ye, then time
-//    .00000045,//ndot/2 drag parameter
-//    00000.0,//n float dot/6 Drag Parameter
-//    0.000042, //bstar drag parameter
-//    98.7132,//inclination IN
-//    152.4464, //RA
-//    .000873,//eccentricity EC
-//    245.714100, //WP
-//    114.3119,//mean anomaly MA
-//    14.20500354,//mean motion MM
-//    3031, //Sat cat number
-//    8022, // element set number
-//    35761,//reveloution Number at Epoch
-//    "CO-57", "03031J"};//international Designation
-
-
-void SGP4ATmega::setElements(tle_t x){
-    elements = x;	
+void SGP4ATmega::setElements(tle_t x)
+{
+    elements = x;
 }
 
 float Degrees(float arg)
 {
     /* Returns angle in degrees from argument in radians */
-    return (arg/deg2rad);
+    return (arg / deg2rad);
 }
 
 void SetFlag(int flag)
 {
-    Flags|=flag;
+    Flags |= flag;
 }
 
 void ClearFlag(int flag)
 {
-    Flags&=~flag;
+    Flags &= ~flag;
 }
 
 float FMod2p(float x)
@@ -66,12 +67,12 @@ float FMod2p(float x)
     int i;
     float ret_val;
 
-    ret_val=x;
-    i=ret_val/twopi;
-    ret_val-=i*twopi;
+    ret_val = x;
+    i = ret_val / twopi;
+    ret_val -= i * twopi;
 
-    if (ret_val<0.0)
-        ret_val+=twopi;
+    if (ret_val < 0.0)
+        ret_val += twopi;
 
     return ret_val;
 }
@@ -80,9 +81,9 @@ float AcTan(float sinx, float cosx)
 {
     /* Four-quadrant arctan function */
 
-    if (cosx==0.0)
+    if (cosx == 0.0)
     {
-        if (sinx>0.0)
+        if (sinx > 0.0)
             return (pio2);
         else
             return (x3pio2);
@@ -90,26 +91,27 @@ float AcTan(float sinx, float cosx)
 
     else
     {
-        if (cosx>0.0)
+        if (cosx > 0.0)
         {
-            if (sinx>0.0)
-                return (atan(sinx/cosx));
+            if (sinx > 0.0)
+                return (atan(sinx / cosx));
             else
-                return (twopi+atan(sinx/cosx));
+                return (twopi + atan(sinx / cosx));
         }
 
         else
-            return (pi+atan(sinx/cosx));
+            return (pi + atan(sinx / cosx));
     }
-    return (pi+atan(sinx/cosx));
+    return (pi + atan(sinx / cosx));
 }
 
 int isFlagClear(int flag)
 {
-    return (~Flags&flag);
+    return (~Flags & flag);
 }
 
-float Frac64E6(uint64_t arg) {
+float Frac64E6(uint64_t arg)
+{
     /* Returns fractional part of float represented as *E06 */
     long foo = arg / 1000000LL;
     long bar = arg - foo;
@@ -137,19 +139,18 @@ float Modulus(float arg1, float arg2)
         ret_val+=arg2;
 
         return ret_val;*/
-    double* intptr = new double;
-    float frac = modf(arg1/arg2, intptr);
+    double *intptr = new double;
+    float frac = modf(arg1 / arg2, intptr);
     return frac * arg2;
 
     //       int result = (int) (arg1/arg2);
     //       return arg1 - (float) result * arg2;
 }
 
-
 float ThetaG_JD(uint64_t jde6)
 {
 
-    float UT=0, TU=0, GMST=0;
+    float UT = 0, TU = 0, GMST = 0;
     float jd;
     float thetag;
     uint64_t A, B, C, D;
@@ -158,20 +159,20 @@ float ThetaG_JD(uint64_t jde6)
     B = 8640184.812866 * CONST;
     C = 0.093104 * CONST;
     D = 6.2E-6 * CONST;
-    jd= (long)(jde6 / CONST);
+    jd = (long)(jde6 / CONST);
     uint64_t dummy = 714861;
-    uint64_t dumbval = 0LL+(uint64_t)jde6 - (uint64_t)jd*CONST;
-    UT = dumbval/ (float)1000000.0;
-    TU=(jd-730550.5)/36525;
-    uint64_t GMSTLLU = A + TU*B + TU*TU*C - TU*TU*TU*D;
-    GMST =( A + TU*B + TU*TU*C - TU*TU*TU*D) / CONST;
-    uint64_t secdayLLU = secday*CONST;
-    uint64_t additives = secday*omega_E*UT * CONST;
+    uint64_t dumbval = 0LL + (uint64_t)jde6 - (uint64_t)jd * CONST;
+    UT = dumbval / (float)1000000.0;
+    TU = (jd - 730550.5) / 36525;
+    uint64_t GMSTLLU = A + TU * B + TU * TU * C - TU * TU * TU * D;
+    GMST = (A + TU * B + TU * TU * C - TU * TU * TU * D) / CONST;
+    uint64_t secdayLLU = secday * CONST;
+    uint64_t additives = secday * omega_E * UT * CONST;
     uint64_t temp = GMSTLLU + additives;
     GMST = (temp % secdayLLU) / 1000000.0;
-    thetag = (twopi*GMST/secday);
+    thetag = (twopi * GMST / secday);
 
-    return   thetag;
+    return thetag;
 }
 /*
  * This version not used, but here for reference
@@ -193,54 +194,55 @@ float ThetaG_JD(uint64_t jde6)
 float Sqr(float arg)
 {
     /* Returns square of a float */
-    return (arg*arg);
+    return (arg * arg);
 }
 void Magnitude(SGP4ATmega::vector_t *v)
 {
     /* Calculates scalar magnitude of a vector_t argument */
-    v->w=sqrt(Sqr(v->x)+Sqr(v->y)+Sqr(v->z));
+    v->w = sqrt(Sqr(v->x) + Sqr(v->y) + Sqr(v->z));
 }
 void Scale_Vector(float k, SGP4ATmega::vector_t *v)
-{ 
+{
     /* Multiplies the vector v1 by the scalar k */
-    v->x*=k;
-    v->y*=k;
-    v->z*=k;
+    v->x *= k;
+    v->y *= k;
+    v->z *= k;
     Magnitude(v);
 }
 void Convert_Sat_State(SGP4ATmega::vector_t *pos, SGP4ATmega::vector_t *vel)
 {
     /* Converts the satellite's position and velocity  */
-    /* vectors from normalized values to km and km/sec */ 
+    /* vectors from normalized values to km and km/sec */
     Scale_Vector(xkmper, pos);
-    Scale_Vector(xkmper*minday/secday, vel);
+    Scale_Vector(xkmper * minday / secday, vel);
 }
-void printfloat( float val){
+void printfloat(float val)
+{
     // prints val with number of decimal places determine by precision
     // precision is a number from 0 to 6 indicating the desired decimial places
     // example: //printfloat( 3.1415, 2); // //prints 3.14 (two decimal places)
 
     int precision = 7;
-    DEBUG_PRINT (int(val));  ////prints the int part
-    if( precision > 0) {
+    DEBUG_PRINT(int(val)); ////prints the int part
+    if (precision > 0)
+    {
         DEBUG_PRINT("."); // //print the decimal point
         unsigned long frac;
         unsigned long mult = 1;
-        byte padding = precision -1;
-        while(precision--)
-            mult *=10;
+        byte padding = precision - 1;
+        while (precision--)
+            mult *= 10;
 
-        if(val >= 0)
+        if (val >= 0)
             frac = (val - int(val)) * mult;
         else
-            frac = (int(val)- val ) * mult;
+            frac = (int(val) - val) * mult;
         unsigned long frac1 = frac;
-        while( frac1 /= 10 )
+        while (frac1 /= 10)
             padding--;
-        while(  padding--)
+        while (padding--)
             DEBUG_PRINT("0");
-        DEBUG_PRINTDEC(frac) ;
-
+        DEBUG_PRINTDEC(frac);
     }
 }
 
@@ -248,11 +250,13 @@ void printVar(char *name, float var)
 {
     DEBUG_PRINT(name);
     DEBUG_PRINT(": ");
-    if((var - (int) var) == 0){
+    if ((var - (int)var) == 0)
+    {
         DEBUG_PRINT("(int) ");
         DEBUG_PRINTLN(var);
     }
-    else{
+    else
+    {
         DEBUG_PRINT("(float) ");
         printfloat(var);
     }
@@ -261,15 +265,15 @@ void printVar(char *name, float var)
 void printTle(SGP4ATmega::tle_t *tle)
 {
     printVar("Epoch", tle->epoch_year * 1000 + tle->epoch_day);
-    printVar("Drag",tle->xndt2o);
-    printVar("Drag2",tle->xndd6o);
-    printVar("Bstar",tle->bstar);
-    printVar("Inclination",tle->xincl);
-    printVar("RA",tle->xnodeo);
-    printVar("EO",tle->eo);
-    printVar("Omega",tle->omegao);
-    printVar("Xmo",tle->xmo);
-    printVar("Xno",tle->xno);
+    printVar("Drag", tle->xndt2o);
+    printVar("Drag2", tle->xndd6o);
+    printVar("Bstar", tle->bstar);
+    printVar("Inclination", tle->xincl);
+    printVar("RA", tle->xnodeo);
+    printVar("EO", tle->eo);
+    printVar("Omega", tle->omegao);
+    printVar("Xmo", tle->xmo);
+    printVar("Xno", tle->xno);
 }
 
 void select_ephemeris(SGP4ATmega::tle_t *tle)
@@ -282,40 +286,41 @@ void select_ephemeris(SGP4ATmega::tle_t *tle)
     float ao, xnodp, dd1, dd2, delo, temp, a1, del1, r1;
 
     /* Preprocess tle set */
-    tle->xnodeo*=deg2rad;
-    tle->omegao*=deg2rad;
-    tle->xmo*=deg2rad;
-    tle->xincl*=deg2rad;
-    temp=twopi/minday/minday;
-    tle->xno=tle->xno*temp*minday;
+    tle->xnodeo *= deg2rad;
+    tle->omegao *= deg2rad;
+    tle->xmo *= deg2rad;
+    tle->xincl *= deg2rad;
+    temp = twopi / minday / minday;
+    tle->xno = tle->xno * temp * minday;
     printVar("xno", tle->xno);
-    tle->xndt2o*=temp;
-    tle->xndd6o=tle->xndd6o*temp/minday;
-    tle->bstar/=ae;
+    tle->xndt2o *= temp;
+    tle->xndd6o = tle->xndd6o * temp / minday;
+    tle->bstar /= ae;
 
     /* Period > 225 minutes is deep space */
-    dd1=(xke/tle->xno);
+    dd1 = (xke / tle->xno);
     printVar("dd1", dd1);
-    dd2=tothrd;
-    a1=pow(dd1,dd2);
-    r1=cos(tle->xincl);
-    dd1=(1.0-tle->eo*tle->eo);
-    temp=ck2*1.5f*(r1*r1*3.0-1.0)/pow(dd1,1.5);
-    del1=temp/(a1*a1);
-    ao=a1*(1.0-del1*(tothrd*.5+del1*(del1*1.654320987654321+1.0)));
-    delo=temp/(ao*ao);
-    xnodp=tle->xno/(delo+1.0);
+    dd2 = tothrd;
+    a1 = pow(dd1, dd2);
+    r1 = cos(tle->xincl);
+    dd1 = (1.0 - tle->eo * tle->eo);
+    temp = ck2 * 1.5f * (r1 * r1 * 3.0 - 1.0) / pow(dd1, 1.5);
+    del1 = temp / (a1 * a1);
+    ao = a1 * (1.0 - del1 * (tothrd * .5 + del1 * (del1 * 1.654320987654321 + 1.0)));
+    delo = temp / (ao * ao);
+    xnodp = tle->xno / (delo + 1.0);
     printVar("xnodp", xnodp);
 
     /* Select a deep-space/near-earth ephemeris */
 
-    if (twopi/xnodp/minday>=0.15625)
+    if (twopi / xnodp / minday >= 0.15625)
         SetFlag(DEEP_SPACE_EPHEM_FLAG);
     else
         ClearFlag(DEEP_SPACE_EPHEM_FLAG);
 }
 
-void printVector(SGP4ATmega::vector_t *vec){
+void printVector(SGP4ATmega::vector_t *vec)
+{
     DEBUG_PRINT("x: ");
     DEBUG_PRINTLN(vec->x);
     DEBUG_PRINT("y: ");
@@ -326,46 +331,44 @@ void printVector(SGP4ATmega::vector_t *vec){
     DEBUG_PRINTLN(vec->w);
 }
 
-void printUint64(char *name,uint64_t var){
+void printUint64(char *name, uint64_t var)
+{
     DEBUG_PRINT(name);
     DEBUG_PRINT(": (uint64)");
-    DEBUG_PRINT((unsigned long)(var/1000000));
+    DEBUG_PRINT((unsigned long)(var / 1000000));
     DEBUG_PRINTLN((unsigned long)(var % 1000000));
-
 }
 
-
-void SGP4(float tsince, SGP4ATmega::tle_t * tle, SGP4ATmega::vector_t * pos, SGP4ATmega::vector_t * vel)
+void SGP4(float tsince, SGP4ATmega::tle_t *tle, SGP4ATmega::vector_t *pos, SGP4ATmega::vector_t *vel)
 {
     /* This function is used to calculate the position and velocity */
     /* of near-earth (period < 225 minutes) satellites. tsince is   */
     /* time since epoch in minutes, tle is a pointer to a tle_t     */
     /* structure with Keplerian orbital elements and pos and vel    */
-    /* are vector_t structures returning ECI satellite position and */ 
+    /* are vector_t structures returning ECI satellite position and */
     /* velocity. Use Convert_Sat_State() to convert to km and km/s. */
 
     // TEST OVERRIDE
     //tsince = 1552811050/60;
 
     static float aodp, aycof, c1, c4, c5, cosio, d2, d3, d4, delmo,
-                 omgcof, eta, omgdot, sinio, xnodp, sinmo, t2cof, t3cof, t4cof,
-                 t5cof, x1mth2, x3thm1, x7thm1, xmcof, xmdot, xnodcf, xnodot, xlcof;
+        omgcof, eta, omgdot, sinio, xnodp, sinmo, t2cof, t3cof, t4cof,
+        t5cof, x1mth2, x3thm1, x7thm1, xmcof, xmdot, xnodcf, xnodot, xlcof;
 
     float cosuk, sinuk, rfdotk, vx, vy, vz, ux, uy, uz, xmy, xmx, cosnok,
-          sinnok, cosik, sinik, rdotk, xinck, xnodek, uk, rk, cos2u, sin2u,
-          u, sinu, cosu, betal, rfdot, rdot, r, pl, elsq, esine, ecose, epw,
-          cosepw, x1m5th, xhdot1, tfour, sinepw, capu, ayn, xlt, aynl, xll,
-          axn, xn, beta, xl, e, a, tcube, delm, delomg, templ, tempe, tempa,
-          xnode, tsq, xmp, omega, xnoddf, omgadf, xmdf, a1, a3ovk2, ao,
-          betao, betao2, c1sq, c2, c3, coef, coef1, del1, delo, eeta, eosq,
-          etasq, perigee, pinvsq, psisq, qoms24, s4, temp, temp1, temp2,
-          temp3, temp4, temp5, temp6, theta2, theta4, tsi;
+        sinnok, cosik, sinik, rdotk, xinck, xnodek, uk, rk, cos2u, sin2u,
+        u, sinu, cosu, betal, rfdot, rdot, r, pl, elsq, esine, ecose, epw,
+        cosepw, x1m5th, xhdot1, tfour, sinepw, capu, ayn, xlt, aynl, xll,
+        axn, xn, beta, xl, e, a, tcube, delm, delomg, templ, tempe, tempa,
+        xnode, tsq, xmp, omega, xnoddf, omgadf, xmdf, a1, a3ovk2, ao,
+        betao, betao2, c1sq, c2, c3, coef, coef1, del1, delo, eeta, eosq,
+        etasq, perigee, pinvsq, psisq, qoms24, s4, temp, temp1, temp2,
+        temp3, temp4, temp5, temp6, theta2, theta4, tsi;
 
     int i;
 
     DEBUG_PRINTLN("----------------------------------------");
     printTle(tle);
-
 
     /* Initialization */
 
@@ -376,26 +379,25 @@ void SGP4(float tsince, SGP4ATmega::tle_t * tle, SGP4ATmega::vector_t * pos, SGP
         /* Recover original mean motion (xnodp) and   */
         /* semimajor axis (aodp) from input elements. */
 
-        a1=pow(xke/tle->xno,tothrd);
+        a1 = pow(xke / tle->xno, tothrd);
         printVar("a1", a1);
-        cosio=cos(tle->xincl);
+        cosio = cos(tle->xincl);
         printVar("Tle->xincl", tle->xincl);
-        theta2=cosio*cosio;
-        x3thm1=3*theta2-1.0;
-        printVar("theta2",theta2);
-        printVar("cosio",cosio);
-        eosq=tle->eo*tle->eo;
-        betao2=1.0-eosq;
-        betao=sqrt(betao2);
-        del1=1.5*ck2*x3thm1/(a1*a1*betao*betao2);
-        ao=a1*(1.0-del1*(0.5*tothrd+del1*(1.0+134.0/81.0*del1)));
-        delo=1.5*ck2*x3thm1/(ao*ao*betao*betao2);
-        xnodp=tle->xno/(1.0+delo);
-        aodp=ao/(1.0-delo);
+        theta2 = cosio * cosio;
+        x3thm1 = 3 * theta2 - 1.0;
+        printVar("theta2", theta2);
+        printVar("cosio", cosio);
+        eosq = tle->eo * tle->eo;
+        betao2 = 1.0 - eosq;
+        betao = sqrt(betao2);
+        del1 = 1.5 * ck2 * x3thm1 / (a1 * a1 * betao * betao2);
+        ao = a1 * (1.0 - del1 * (0.5 * tothrd + del1 * (1.0 + 134.0 / 81.0 * del1)));
+        delo = 1.5 * ck2 * x3thm1 / (ao * ao * betao * betao2);
+        xnodp = tle->xno / (1.0 + delo);
+        aodp = ao / (1.0 - delo);
 
         printVar("aodp", aodp);
-        DEBUG_PRINTLN("----------------------------------------");        
-
+        DEBUG_PRINTLN("----------------------------------------");
 
         /* For perigee less than 220 kilometers, the "simple"     */
         /* flag is set and the equations are truncated to linear  */
@@ -403,7 +405,7 @@ void SGP4(float tsince, SGP4ATmega::tle_t * tle, SGP4ATmega::vector_t * pos, SGP
         /* anomaly.  Also, the c3 term, the delta omega term, and */
         /* the delta m term are dropped.                          */
 
-        if ((aodp*(1-tle->eo)/ae)<(220/xkmper+ae))
+        if ((aodp * (1 - tle->eo) / ae) < (220 / xkmper + ae))
             SetFlag(SIMPLE_FLAG);
 
         else
@@ -412,207 +414,203 @@ void SGP4(float tsince, SGP4ATmega::tle_t * tle, SGP4ATmega::vector_t * pos, SGP
         /* For perigees below 156 km, the      */
         /* values of s and qoms2t are altered. */
 
-        s4=s;
-        qoms24=qoms2t;
-        perigee=(aodp*(1-tle->eo)-ae)*xkmper;
+        s4 = sgp4S;
+        qoms24 = qoms2t;
+        perigee = (aodp * (1 - tle->eo) - ae) * xkmper;
         printVar("perigee", perigee);
 
-        if (perigee<156.0)
+        if (perigee < 156.0)
         {
-            if (perigee<=98.0)
-                s4=20;
+            if (perigee <= 98.0)
+                s4 = 20;
             else
-                s4=perigee-78.0;
+                s4 = perigee - 78.0;
 
-            qoms24=pow((120-s4)*ae/xkmper,4);
-            s4=s4/xkmper+ae;
+            qoms24 = pow((120 - s4) * ae / xkmper, 4);
+            s4 = s4 / xkmper + ae;
         }
         DEBUG_PRINTLN("----------------------------------------");
 
-
-        pinvsq=1/(aodp*aodp*betao2*betao2);
-        tsi=1/(aodp-s4);
-        eta=aodp*tle->eo*tsi;
-        etasq=eta*eta;
-        printVar("etasq",etasq);
-        eeta=tle->eo*eta;
-        psisq=fabs(1-etasq);
-        coef=qoms24*pow(tsi,4);
-        coef1=coef/pow(psisq,3.5);
-        printVar("coef1",coef1);
-        c2=coef1*xnodp*(aodp*(1+1.5*etasq+eeta*(4+etasq))+0.75*ck2*tsi/psisq*x3thm1*(8+3*etasq*(8+etasq)));
+        pinvsq = 1 / (aodp * aodp * betao2 * betao2);
+        tsi = 1 / (aodp - s4);
+        eta = aodp * tle->eo * tsi;
+        etasq = eta * eta;
+        printVar("etasq", etasq);
+        eeta = tle->eo * eta;
+        psisq = fabs(1 - etasq);
+        coef = qoms24 * pow(tsi, 4);
+        coef1 = coef / pow(psisq, 3.5);
+        printVar("coef1", coef1);
+        c2 = coef1 * xnodp * (aodp * (1 + 1.5 * etasq + eeta * (4 + etasq)) + 0.75 * ck2 * tsi / psisq * x3thm1 * (8 + 3 * etasq * (8 + etasq)));
         printVar("xnodp", xnodp);
-        printVar("etasq",etasq);
-        printVar("eeta",eeta);
-        printVar("ck2",ck2);
-        printVar("tsi",tsi);
-        printVar("psisq",psisq);
-        printVar("x3thm1",x3thm1);
-        printVar("c2",c2);
-        c1=tle->bstar*c2;
-        printVar("c1*1000000",c1*1000000);
+        printVar("etasq", etasq);
+        printVar("eeta", eeta);
+        printVar("ck2", ck2);
+        printVar("tsi", tsi);
+        printVar("psisq", psisq);
+        printVar("x3thm1", x3thm1);
+        printVar("c2", c2);
+        c1 = tle->bstar * c2;
+        printVar("c1*1000000", c1 * 1000000);
         printVar("BSTAR: ", tle->bstar);
-        sinio=sin(tle->xincl);
-        a3ovk2=-xj3/ck2*pow(ae,3);
-        c3=coef*tsi*a3ovk2*xnodp*ae*sinio/tle->eo;
-        x1mth2=1-theta2;
+        sinio = sin(tle->xincl);
+        a3ovk2 = -xj3 / ck2 * pow(ae, 3);
+        c3 = coef * tsi * a3ovk2 * xnodp * ae * sinio / tle->eo;
+        x1mth2 = 1 - theta2;
         printVar("x1mth2", x1mth2);
         DEBUG_PRINTLN("----------------------------------------");
         DEBUG_PRINTLN("----------------------------------------");
 
+        c4 = 2 * xnodp * coef1 * aodp * betao2 * (eta * (2 + 0.5 * etasq) + tle->eo * (0.5 + 2 * etasq) - 2 * ck2 * tsi / (aodp * psisq) * (-3 * x3thm1 * (1 - 2 * eeta + etasq * (1.5 - 0.5 * eeta)) + 0.75 * x1mth2 * (2 * etasq - eeta * (1 + etasq)) * cos(2 * tle->omegao)));
+        c5 = 2 * coef1 * aodp * betao2 * (1 + 2.75 * (etasq + eeta) + eeta * etasq);
 
-        c4=2*xnodp*coef1*aodp*betao2*(eta*(2+0.5*etasq)+tle->eo*(0.5+2*etasq)-2*ck2*tsi/(aodp*psisq)*(-3*x3thm1*(1-2*eeta+etasq*(1.5-0.5*eeta))+0.75*x1mth2*(2*etasq-eeta*(1+etasq))*cos(2*tle->omegao)));
-        c5=2*coef1*aodp*betao2*(1+2.75*(etasq+eeta)+eeta*etasq);
-
-        theta4=theta2*theta2;
-        temp1=3*ck2*pinvsq*xnodp;
-        temp2=temp1*ck2*pinvsq;
-        temp3=1.25*ck4*pinvsq*pinvsq*xnodp;
-        xmdot=xnodp+0.5*temp1*betao*x3thm1+0.0625*temp2*betao*(13-78*theta2+137*theta4);
-        x1m5th=1-5*theta2;
-        omgdot=-0.5*temp1*x1m5th+0.0625*temp2*(7-114*theta2+395*theta4)+temp3*(3-36*theta2+49*theta4);
-        xhdot1=-temp1*cosio;
-        xnodot=xhdot1+(0.5*temp2*(4-19*theta2)+2*temp3*(3-7*theta2))*cosio;
-        omgcof=tle->bstar*c3*cos(tle->omegao);
-        xmcof=-tothrd*coef*tle->bstar*ae/eeta;
-        xnodcf=3.5*betao2*xhdot1*c1;
-        t2cof=1.5*c1;
-        printVar("t2cof*1000000", t2cof*1000000);
-        xlcof=0.125*a3ovk2*sinio*(3+5*cosio)/(1+cosio);
-        aycof=0.25*a3ovk2*sinio;
-        delmo=pow(1+eta*cos(tle->xmo),3);
-        sinmo=sin(tle->xmo);
-        x7thm1=7*theta2-1;
+        theta4 = theta2 * theta2;
+        temp1 = 3 * ck2 * pinvsq * xnodp;
+        temp2 = temp1 * ck2 * pinvsq;
+        temp3 = 1.25 * ck4 * pinvsq * pinvsq * xnodp;
+        xmdot = xnodp + 0.5 * temp1 * betao * x3thm1 + 0.0625 * temp2 * betao * (13 - 78 * theta2 + 137 * theta4);
+        x1m5th = 1 - 5 * theta2;
+        omgdot = -0.5 * temp1 * x1m5th + 0.0625 * temp2 * (7 - 114 * theta2 + 395 * theta4) + temp3 * (3 - 36 * theta2 + 49 * theta4);
+        xhdot1 = -temp1 * cosio;
+        xnodot = xhdot1 + (0.5 * temp2 * (4 - 19 * theta2) + 2 * temp3 * (3 - 7 * theta2)) * cosio;
+        omgcof = tle->bstar * c3 * cos(tle->omegao);
+        xmcof = -tothrd * coef * tle->bstar * ae / eeta;
+        xnodcf = 3.5 * betao2 * xhdot1 * c1;
+        t2cof = 1.5 * c1;
+        printVar("t2cof*1000000", t2cof * 1000000);
+        xlcof = 0.125 * a3ovk2 * sinio * (3 + 5 * cosio) / (1 + cosio);
+        aycof = 0.25 * a3ovk2 * sinio;
+        delmo = pow(1 + eta * cos(tle->xmo), 3);
+        sinmo = sin(tle->xmo);
+        x7thm1 = 7 * theta2 - 1;
         printVar("x7thm1", x7thm1);
 
         if (isFlagClear(SIMPLE_FLAG))
         {
-            c1sq=c1*c1;
-            d2=4*aodp*tsi*c1sq;
-            temp=d2*tsi*c1/3;
-            d3=(17*aodp+s4)*temp;
-            d4=0.5*temp*aodp*tsi*(221*aodp+31*s4)*c1;
-            t3cof=d2+2*c1sq;
-            t4cof=0.25*(3*d3+c1*(12*d2+10*c1sq));
-            t5cof=0.2*(3*d4+12*c1*d3+6*d2*d2+15*c1sq*(2*d2+c1sq));
+            c1sq = c1 * c1;
+            d2 = 4 * aodp * tsi * c1sq;
+            temp = d2 * tsi * c1 / 3;
+            d3 = (17 * aodp + s4) * temp;
+            d4 = 0.5 * temp * aodp * tsi * (221 * aodp + 31 * s4) * c1;
+            t3cof = d2 + 2 * c1sq;
+            t4cof = 0.25 * (3 * d3 + c1 * (12 * d2 + 10 * c1sq));
+            t5cof = 0.2 * (3 * d4 + 12 * c1 * d3 + 6 * d2 * d2 + 15 * c1sq * (2 * d2 + c1sq));
         }
     }
 
     /* Update for secular gravity and atmospheric drag. */
-    xmdf=tle->xmo+xmdot*tsince;
-    omgadf=tle->omegao+omgdot*tsince;
-    xnoddf=tle->xnodeo+xnodot*tsince;
-    omega=omgadf;
-    xmp=xmdf;
-    tsq=tsince*tsince;
-    printVar("tsince*1000000", tsince*1000000);
-    printVar("tsq", tsq);        
+    xmdf = tle->xmo + xmdot * tsince;
+    omgadf = tle->omegao + omgdot * tsince;
+    xnoddf = tle->xnodeo + xnodot * tsince;
+    omega = omgadf;
+    xmp = xmdf;
+    tsq = tsince * tsince;
+    printVar("tsince*1000000", tsince * 1000000);
+    printVar("tsq", tsq);
 
-    xnode=xnoddf+xnodcf*tsq;
-    tempa=1-c1*tsince;
-    tempe=tle->bstar*c4*tsince;
-    templ=t2cof*tsq;
+    xnode = xnoddf + xnodcf * tsq;
+    tempa = 1 - c1 * tsince;
+    tempe = tle->bstar * c4 * tsince;
+    templ = t2cof * tsq;
     printVar("templ", templ);
-
 
     if (isFlagClear(SIMPLE_FLAG))
     {
-        delomg=omgcof*tsince;
-        delm=xmcof*(pow(1+eta*cos(xmdf),3)-delmo);
-        temp=delomg+delm;
-        xmp=xmdf+temp;
-        omega=omgadf-temp;
-        tcube=tsq*tsince;
-        tfour=tsince*tcube;
-        tempa=tempa-d2*tsq-d3*tcube-d4*tfour;
-        tempe=tempe+tle->bstar*c5*(sin(xmp)-sinmo);
-        templ=templ+t3cof*tcube+tfour*(t4cof+tsince*t5cof);
+        delomg = omgcof * tsince;
+        delm = xmcof * (pow(1 + eta * cos(xmdf), 3) - delmo);
+        temp = delomg + delm;
+        xmp = xmdf + temp;
+        omega = omgadf - temp;
+        tcube = tsq * tsince;
+        tfour = tsince * tcube;
+        tempa = tempa - d2 * tsq - d3 * tcube - d4 * tfour;
+        tempe = tempe + tle->bstar * c5 * (sin(xmp) - sinmo);
+        templ = templ + t3cof * tcube + tfour * (t4cof + tsince * t5cof);
         printVar("templ", templ);
     }
 
-    a=aodp*pow(tempa,2);
-    e=tle->eo-tempe;
-    xl=xmp+omega+xnode+xnodp*templ;
-    beta=sqrt(1-e*e);
-    xn=xke/pow(a,1.5);
+    a = aodp * pow(tempa, 2);
+    e = tle->eo - tempe;
+    xl = xmp + omega + xnode + xnodp * templ;
+    beta = sqrt(1 - e * e);
+    xn = xke / pow(a, 1.5);
 
     /* Long period periodics */
-    axn=e*cos(omega);
-    temp=1/(a*beta*beta);
-    xll=temp*xlcof*axn;
-    aynl=temp*aycof;
-    xlt=xl+xll;
-    ayn=e*sin(omega)+aynl;
+    axn = e * cos(omega);
+    temp = 1 / (a * beta * beta);
+    xll = temp * xlcof * axn;
+    aynl = temp * aycof;
+    xlt = xl + xll;
+    ayn = e * sin(omega) + aynl;
 
     /* Solve Kepler's Equation */
-    capu=FMod2p(xlt-xnode);
-    temp2=capu;
-    i=0;
+    capu = FMod2p(xlt - xnode);
+    temp2 = capu;
+    i = 0;
 
     do
     {
-        sinepw=sin(temp2);
-        cosepw=cos(temp2);
-        temp3=axn*sinepw;
-        temp4=ayn*cosepw;
-        temp5=axn*cosepw;
-        temp6=ayn*sinepw;
-        epw=(capu-temp4+temp3-temp2)/(1-temp5-temp6)+temp2;
+        sinepw = sin(temp2);
+        cosepw = cos(temp2);
+        temp3 = axn * sinepw;
+        temp4 = ayn * cosepw;
+        temp5 = axn * cosepw;
+        temp6 = ayn * sinepw;
+        epw = (capu - temp4 + temp3 - temp2) / (1 - temp5 - temp6) + temp2;
 
-        if (fabs(epw-temp2)<= e6a)
+        if (fabs(epw - temp2) <= e6a)
             break;
 
-        temp2=epw;
+        temp2 = epw;
 
-    } while (i++<10);
+    } while (i++ < 10);
 
     /* Short p2eriod preliminary quantities */
-    ecose=temp5+temp6;
-    esine=temp3-temp4;
-    elsq=axn*axn+ayn*ayn;
-    temp=1-elsq;
-    pl=a*temp;
-    r=a*(1-ecose);
-    temp1=1/r;
-    rdot=xke*sqrt(a)*esine*temp1;
-    rfdot=xke*sqrt(pl)*temp1;
-    temp2=a*temp1;
-    betal=sqrt(temp);
-    temp3=1/(1+betal);
-    cosu=temp2*(cosepw-axn+ayn*esine*temp3);
-    sinu=temp2*(sinepw-ayn-axn*esine*temp3);
-    u=AcTan(sinu,cosu);
-    sin2u=2*sinu*cosu;
-    cos2u=2*cosu*cosu-1;
-    temp=1/pl;
-    temp1=ck2*temp;
-    temp2=temp1*temp;
-    
+    ecose = temp5 + temp6;
+    esine = temp3 - temp4;
+    elsq = axn * axn + ayn * ayn;
+    temp = 1 - elsq;
+    pl = a * temp;
+    r = a * (1 - ecose);
+    temp1 = 1 / r;
+    rdot = xke * sqrt(a) * esine * temp1;
+    rfdot = xke * sqrt(pl) * temp1;
+    temp2 = a * temp1;
+    betal = sqrt(temp);
+    temp3 = 1 / (1 + betal);
+    cosu = temp2 * (cosepw - axn + ayn * esine * temp3);
+    sinu = temp2 * (sinepw - ayn - axn * esine * temp3);
+    u = AcTan(sinu, cosu);
+    sin2u = 2 * sinu * cosu;
+    cos2u = 2 * cosu * cosu - 1;
+    temp = 1 / pl;
+    temp1 = ck2 * temp;
+    temp2 = temp1 * temp;
 
     /* Update for short periodics */
-    rk=r*(1-1.5*temp2*betal*x3thm1)+0.5*temp1*x1mth2*cos2u;
-    uk=u-0.25*temp2*x7thm1*sin2u;
-    xnodek=xnode+1.5*temp2*cosio*sin2u;
+    rk = r * (1 - 1.5 * temp2 * betal * x3thm1) + 0.5 * temp1 * x1mth2 * cos2u;
+    uk = u - 0.25 * temp2 * x7thm1 * sin2u;
+    xnodek = xnode + 1.5 * temp2 * cosio * sin2u;
     printVar("xnodek", xnodek);
-    xinck=tle->xincl+1.5*temp2*cosio*sinio*cos2u;
-    rdotk=rdot-xn*temp1*x1mth2*sin2u;
-    rfdotk=rfdot+xn*temp1*(x1mth2*cos2u+1.5*x3thm1);
+    xinck = tle->xincl + 1.5 * temp2 * cosio * sinio * cos2u;
+    rdotk = rdot - xn * temp1 * x1mth2 * sin2u;
+    rfdotk = rfdot + xn * temp1 * (x1mth2 * cos2u + 1.5 * x3thm1);
 
     /* Orientation vectors */
-    sinuk=sin(uk);
-    cosuk=cos(uk);
-    sinik=sin(xinck);
-    cosik=cos(xinck);
-    sinnok=sin(xnodek);
-    cosnok=cos(xnodek);
-    xmx=-sinnok*cosik;
-    xmy=cosnok*cosik;
-    ux=xmx*sinuk+cosnok*cosuk; /////
-    uy=xmy*sinuk+sinnok*cosuk;
-    uz=sinik*sinuk;
-    vx=xmx*cosuk-cosnok*sinuk;
-    vy=xmy*cosuk-sinnok*sinuk;
-    vz=sinik*cosuk;
+    sinuk = sin(uk);
+    cosuk = cos(uk);
+    sinik = sin(xinck);
+    cosik = cos(xinck);
+    sinnok = sin(xnodek);
+    cosnok = cos(xnodek);
+    xmx = -sinnok * cosik;
+    xmy = cosnok * cosik;
+    ux = xmx * sinuk + cosnok * cosuk; /////
+    uy = xmy * sinuk + sinnok * cosuk;
+    uz = sinik * sinuk;
+    vx = xmx * cosuk - cosnok * sinuk;
+    vy = xmy * cosuk - sinnok * sinuk;
+    vz = sinik * cosuk;
 
     /* Position and velocity */
     DEBUG_PRINTLN("------------------- POSITION & VELOCITY CALCULATION ---------------------");
@@ -630,12 +628,12 @@ void SGP4(float tsince, SGP4ATmega::tle_t * tle, SGP4ATmega::vector_t * pos, SGP
     DEBUG_PRINTLN(cosnok);
     DEBUG_PRINTLN(cosuk);
     DEBUG_PRINTLN("----------------------------------------");
-    pos->x=rk*ux;
-    pos->y=rk*uy;
-    pos->z=rk*uz;
-    vel->x=rdotk*ux+rfdotk*vx;
-    vel->y=rdotk*uy+rfdotk*vy;
-    vel->z=rdotk*uz+rfdotk*vz;
+    pos->x = rk * ux;
+    pos->y = rk * uy;
+    pos->z = rk * uz;
+    vel->x = rdotk * ux + rfdotk * vx;
+    vel->y = rdotk * uy + rfdotk * vy;
+    vel->z = rdotk * uz + rfdotk * vz;
 
     DEBUG_PRINTLN("----------------------------------------");
     DEBUG_PRINT("Position: ");
@@ -644,15 +642,15 @@ void SGP4(float tsince, SGP4ATmega::tle_t * tle, SGP4ATmega::vector_t * pos, SGP
     printVector(vel);
 
     /* Phase in radians */
-    phase=xlt-xnode-omgadf+twopi;
+    phase = xlt - xnode - omgadf + twopi;
 
-    if (phase<0.0)
-        phase+=twopi;
+    if (phase < 0.0)
+        phase += twopi;
 
-    phase=FMod2p(phase);
+    phase = FMod2p(phase);
 }
 
-void Calculate_LatLonAlt(uint64_t time, SGP4ATmega::vector_t *pos,  SGP4ATmega::geodetic_t *geodetic)
+void Calculate_LatLonAlt(uint64_t time, SGP4ATmega::vector_t *pos, SGP4ATmega::geodetic_t *geodetic)
 {
     /* Procedure Calculate_LatLonAlt will calculate the geodetic  */
     /* position of an object given its ECI position pos and time. */
@@ -664,31 +662,30 @@ void Calculate_LatLonAlt(uint64_t time, SGP4ATmega::vector_t *pos,  SGP4ATmega::
 
     float r, e2, phi, c;
 
-    geodetic->theta=AcTan(pos->y,pos->x); /* radians */
-    geodetic->lon=FMod2p(geodetic->theta-ThetaG_JD(time)); /* radians */
-    r=sqrt(Sqr(pos->x)+Sqr(pos->y));
-    e2=f*(2-f);
-    geodetic->lat=AcTan(pos->z,r); /* radians */
+    geodetic->theta = AcTan(pos->y, pos->x);                   /* radians */
+    geodetic->lon = FMod2p(geodetic->theta - ThetaG_JD(time)); /* radians */
+    r = sqrt(Sqr(pos->x) + Sqr(pos->y));
+    e2 = f * (2 - f);
+    geodetic->lat = AcTan(pos->z, r); /* radians */
 
     do
     {
-        phi=geodetic->lat;
-        c=1/sqrt(1-e2*Sqr(sin(phi)));
-        geodetic->lat=AcTan(pos->z+xkmper*c*e2*sin(phi),r);
+        phi = geodetic->lat;
+        c = 1 / sqrt(1 - e2 * Sqr(sin(phi)));
+        geodetic->lat = AcTan(pos->z + xkmper * c * e2 * sin(phi), r);
 
-    } while (fabs(geodetic->lat-phi)>=1E-10);
+    } while (fabs(geodetic->lat - phi) >= 1E-10);
 
-    geodetic->alt=r/cos(geodetic->lat)-xkmper*c; /* kilometers */
+    geodetic->alt = r / cos(geodetic->lat) - xkmper * c; /* kilometers */
 
-    if (geodetic->lat>pio2)
-        geodetic->lat-=twopi;
+    if (geodetic->lat > pio2)
+        geodetic->lat -= twopi;
 }
 
-
-
-void printGeo(SGP4ATmega::geodetic_t *geo){
+void printGeo(SGP4ATmega::geodetic_t *geo)
+{
     DEBUG_PRINT("lat: ");
-    DEBUG_PRINTLN(Degrees(geo->lat));  
+    DEBUG_PRINTLN(Degrees(geo->lat));
     DEBUG_PRINT("lon: ");
     DEBUG_PRINTLN(Degrees(geo->lon));
     DEBUG_PRINT("alt: ");
@@ -709,15 +706,15 @@ uint64_t Julian_Date_of_Year(float year)
     uint64_t out = 0LL;
     long A, B, i;
     float jdoy;
-    year=year-1;
-    i=year/100;
+    year = year - 1;
+    i = year / 100;
     printVar("i", i);
-    A=i;
-    i=A/4;
-    B=2-A+i;
+    A = i;
+    i = A / 4;
+    B = 2 - A + i;
     printVar("B", B);
-    i=365.25*year;
-    i+=30.6001*14;
+    i = 365.25 * year;
+    i += 30.6001 * 14;
     printVar("i", i);
     printVar("B", B);
     out += i;
@@ -742,7 +739,7 @@ uint64_t Julian_Date_of_Year(float year)
    }
  */
 uint64_t Julian_Date_of_Epoch(float epoch_year, float epoch_day)
-{ 
+{
     /* The function Julian_Date_of_Epoch returns the Julian Date of     */
     /* an epoch specified in the format used in the NORAD two-line      */
     /* element sets. It has been modified to support dates beyond       */
@@ -764,57 +761,59 @@ uint64_t Julian_Date_of_Epoch(float epoch_year, float epoch_day)
 
     //	return (Julian_Date_of_Year(year)+day);
     uint64_t jdy = Julian_Date_of_Year(epoch_year + 2000);
-    uint64_t yearPart = Julian_Date_of_Year(epoch_year + 2000)*1000000LL;
-    uint64_t dayPart = epoch_day*1000000LL;
+    uint64_t yearPart = Julian_Date_of_Year(epoch_year + 2000) * 1000000LL;
+    uint64_t dayPart = epoch_day * 1000000LL;
     return yearPart + dayPart;
 }
 /* Sets the time to specified time. Format is standard Unix time, seconds    */
 /*   from epoch plus microseconds.                                           */
 void SGP4ATmega::setTime(long sec)
 {
-    seconds =  sec; //utams;
+    seconds = sec; //utams;
     //orig. daynum *E7
-    daynum = ((uint64_t)seconds *10000/864LL - (3651000000LL));
+    daynum = ((uint64_t)seconds * 10000 / 864LL - (3651000000LL));
     DEBUG_PRINT("seconds: ");
     DEBUG_PRINTLN(seconds);
-
-
 }
 
-void SGP4ATmega::calc(SGP4ATmega::tle_t t, SGP4ATmega::geodetic_t *geo){
+void SGP4ATmega::calc(SGP4ATmega::tle_t t, SGP4ATmega::geodetic_t *geo)
+{
     printTle(&t);
     DEBUG_PRINTLN("----------------------------------------");
-    SGP4ATmega::vector_t zero_vector={0,0,0,0};
+    SGP4ATmega::vector_t zero_vector = {0, 0, 0, 0};
     SGP4ATmega::vector_t pos = zero_vector;
     SGP4ATmega::vector_t vel = zero_vector;
 
-    jul_utc = daynum +723244000000LL;
-    jul_epoch=Julian_Date_of_Epoch(t.epoch_year, t.epoch_day);
-    printUint64("TestNum", (uint64_t) 11118562939LL);
+    jul_utc = daynum + 723244000000LL;
+    jul_epoch = Julian_Date_of_Epoch(t.epoch_year, t.epoch_day);
+    printUint64("TestNum", (uint64_t)11118562939LL);
     printUint64("daynum", daynum);
-    printUint64("jul_utc",jul_utc);
-    printUint64("jul_epoch",jul_epoch);
-    tsince =   ((jul_utc - jul_epoch)/1000000.0) * minday;
-
+    printUint64("jul_utc", jul_utc);
+    printUint64("jul_epoch", jul_epoch);
+    tsince = ((jul_utc - jul_epoch) / 1000000.0) * minday;
 
     select_ephemeris(&t);
 
     SGP4(tsince, &t, &pos, &vel);
-    Convert_Sat_State(&pos, &vel);   
-    Magnitude(&vel);        
+    Convert_Sat_State(&pos, &vel);
+    Magnitude(&vel);
     printVar("jul_utc", jul_utc);
     Calculate_LatLonAlt(jul_utc, &pos, geo);
     printVector(&pos);
     printVector(&vel);
     printGeo(geo);
-	geo->lat = Degrees(geo->lat);
-	geo->lon = Degrees(geo->lon);
+    geo->lat = Degrees(geo->lat);
+    geo->lon = Degrees(geo->lon);
 }
 
-float SGP4ATmega::toRegularLong(float lon){
-    if(lon > 180){
+float SGP4ATmega::toRegularLong(float lon)
+{
+    if (lon > 180)
+    {
         return lon - 360;
-    } else {
+    }
+    else
+    {
         return lon;
     }
 }

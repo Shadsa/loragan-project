@@ -1,6 +1,5 @@
 #ifndef FACTORY_H
 #define FACTORY_H
-
 #include <Arduino.h>
 #include "objects.h"
 #include "spg4.h"
