@@ -64,7 +64,7 @@ void waitTillMessageGone()
     }
     delay(10);
     while (Serial2.available() > 0)
-        SerialUSB.write(Serial2.read());
+      SerialUSB.write(Serial2.read());
 }
 
 // Setting up the receiver to read for incomming messages
@@ -104,7 +104,7 @@ int LORA_Read(char *Data)
         {
             Buffer += (char)Serial2.read();
         }
-      
+
         // If there is an incoming message
         if (Buffer.startsWith(dataStr, 0)) // if there is a message in the buffer
         {
@@ -117,7 +117,7 @@ int LORA_Read(char *Data)
                 i++;
             }
             messageFlag = 1; // Message received
-        }
+        } 
         else if (Buffer.startsWith(errorStr, 0))
         {
             messageFlag = 2; // Read error or Watchdogtimer timeout
@@ -157,7 +157,7 @@ void setup()
     digitalWrite(LED_GREEN,LOW  ); // Light up LED if there is a message
     delay(5000);
     digitalWrite(LED_GREEN, HIGH);
-    
+
 }
 
 void LoopRead(){
@@ -201,13 +201,33 @@ void loop()
 {
     // put your main code here, to run repeatedly:
 
+    for (int i = 0; i < MAXNETWORKAGREGATION; i++) {
+        for (int j = 0; j < MAXROUTINGTABLEGATEWAYSIZE;j++) {
+            if (IsGatewayDropped(table.Gateways[i][j])) {
+                DeleteGateway(table.Gateways[i][j], table.Networks[i], table);
+            }
+        }
+    }
+
+    long TimeNextZE = NextZE();
+    Gateway* NextGateways[] = GetNextInsightGateways();
+    Gateway* NextMotes[] = GetNextInsightMotes();
+    PreparePayload(NextGateways,NextMotes);
+    while (millis()<TimeNextZE) {
+        LoopRead(TimeNextZE);
+    }
+    while (IsInSightOf(TimeNextZE) /*&& notEmpty(payload)*/) {
+        // send(payload);
+        delay(2000);
+    }
+
     // Some data to send
     char Data[1000] = "4141414142";
 
     LORA_Write(Data);
-    
+
     delay(1000); //DO NOT TOUCH !! BREAKING CODE EVERY TIME
-    
+
     LoopRead();
 }
 
